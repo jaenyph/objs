@@ -1,5 +1,11 @@
 # ignore node modules
 node_modules
 
+# ignore typescript build result
+build
+
 # ignore vs code configuration
 .vscode
+
+# ignore any root log files
+*.log
