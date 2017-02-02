@@ -4,6 +4,9 @@ node_modules
 # ignore typescript build result
 build
 
+# ignore typescript definitions for tests
+typings/tests
+
 # ignore vs code configuration
 .vscode
 
