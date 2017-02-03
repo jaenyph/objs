@@ -12,3 +12,8 @@ typings/tests
 
 # ignore any root log files
 *.log
+
+# ignore npm installed typings
+typings.json
+typings/index.d.ts
+typings/globals
