@@ -71,4 +71,104 @@ describe("Objs.Types", () => {
         const actual = sut.isPrimitive(undefined);
         expect(actual).toBe(true);
     });
+
+    it("areSameTypes returns true if both boolean", () => {
+        const actual = sut.areSameTypes(true, false);
+        expect(actual).toBe(true);
+    });
+
+    it("areSameTypes returns true if not both boolean", () => {
+        const actual = sut.areSameTypes(true, "false");
+        expect(actual).not.toBe(true);
+    });
+
+    it("areSameTypes returns true if both numbers", () => {
+        const actual = sut.areSameTypes(1.2, 2.3);
+        expect(actual).toBe(true);
+    });
+
+    it("areSameTypes returns true if not both numbers", () => {
+        const actual = sut.areSameTypes(1.2, "1.2");
+        expect(actual).not.toBe(true);
+    });
+
+    it("areSameTypes returns true if both strings", () => {
+        const actual = sut.areSameTypes("a", "b");
+        expect(actual).toBe(true);
+    });
+
+    it("areSameTypes returns true if not both strings", () => {
+        const actual = sut.areSameTypes("a", 0xb);
+        expect(actual).not.toBe(true);
+    });
+
+    it("areSameTypes returns true if both functions", () => {
+        const actual = sut.areSameTypes(() => {}, function(){});
+        expect(actual).toBe(true);
+    });
+
+    it("areSameTypes returns true if not both functions", () => {
+        const actual = sut.areSameTypes(()=>{}, "false");
+        expect(actual).not.toBe(true);
+    });
+
+    it("getHashCode returns same values for booleans that are clone", () => {
+        const firstActual = sut.getHashCode(true);
+        const secondActual = sut.getHashCode(true);
+        expect(firstActual).toEqual(secondActual);
+    });
+
+    it("getHashCode returns different values for booleans that are not clone", () => {
+        const firstActual = sut.getHashCode(true);
+        const secondActual = sut.getHashCode(false);
+        expect(firstActual).not.toEqual(secondActual);
+    });
+
+    it("getHashCode returns same values for numbers that are clone", () => {
+        const firstActual = sut.getHashCode(3.14);
+        const secondActual = sut.getHashCode(3.14);
+        expect(firstActual).toEqual(secondActual);
+    });
+
+    it("getHashCode returns different values for numbers that are not clone", () => {
+        const firstActual = sut.getHashCode(3.14);
+        const secondActual = sut.getHashCode(1.59);
+        expect(firstActual).not.toEqual(secondActual);
+    });
+
+    it("getHashCode returns same values for strings that are clone", () => {
+        const firstActual = sut.getHashCode("test");
+        const secondActual = sut.getHashCode("test");
+        expect(firstActual).toEqual(secondActual);
+    });
+
+    it("getHashCode returns different values for strings that are not clone", () => {
+        const firstActual = sut.getHashCode("test1");
+        const secondActual = sut.getHashCode("test2");
+        expect(firstActual).not.toEqual(secondActual);
+    });
+
+    it("getHashCode returns same values for objects that are clone", () => {
+        const firstActual = sut.getHashCode({"prop": "val"});
+        const secondActual = sut.getHashCode({"prop": "val"});
+        expect(firstActual).toEqual(secondActual);
+    });
+
+    it("getHashCode returns different values for objects that are not clone", () => {
+        const firstActual = sut.getHashCode({"prop": "val"});
+        const secondActual = sut.getHashCode({"prop": "other"});
+        expect(firstActual).not.toEqual(secondActual);
+    });
+
+    it("getHashCode returns same values for arrays that are clone", () => {
+        const firstActual = sut.getHashCode([{"prop": "val"}]);
+        const secondActual = sut.getHashCode([{"prop": "val"}]);
+        expect(firstActual).toEqual(secondActual);
+    });
+
+    it("getHashCode returns different values for objects that are not clone", () => {
+        const firstActual = sut.getHashCode([{"prop": "val"}]);
+        const secondActual = sut.getHashCode([{"prop": "other"}]);
+        expect(firstActual).not.toEqual(secondActual);
+    });
 });

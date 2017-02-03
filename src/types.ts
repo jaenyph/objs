@@ -57,5 +57,34 @@ namespace Objs {
         public static isDate(value: any): boolean {
             return value instanceof Date;
         }
+
+        /**
+         * Whether or not the given values are of the same type
+         */
+        public static areSameTypes(valueA:any, valueB:any): boolean {
+            return typeof valueA === typeof valueB;
+        }
+
+        /**
+         * Get a hash code for the given value
+         */
+        public static getHashCode(value:any) : number {
+            return this.getStringHashCode(typeof value === "string" ? value : JSON.stringify(value, undefined, 0));
+        }
+
+        /**
+         * @see http://stackoverflow.com/a/7616484/4306452
+         */
+        private static getStringHashCode(value:string):number {
+            let length=value.length
+            if (length === 0) return 0;
+            let hash = 0, i, chr;
+            for (i = 0; i < length; i++) {
+                chr   = value.charCodeAt(i);
+                hash  = ((hash << 5) - hash) + chr;
+                hash |= 0; // Convert to 32bit integer
+            }
+            return hash
+        }
     }
 }
