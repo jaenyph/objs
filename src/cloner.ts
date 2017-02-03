@@ -6,7 +6,7 @@ namespace Objs {
      */
     export class Cloner {
         public static shallowClone<T>(value: T): T {
-            if (!Objs.Types.isArray) {
+            if (!Objs.Types.isArray(value)) {
                 return this.cloneNonArray(value, false);
             } else {
                 const array = value as any as any[];
@@ -27,20 +27,20 @@ namespace Objs {
         }
 
         private static cloneNonArray(value: Object, deepCloning: boolean): any {
-            if (Objs.Types.isPrimitive) {
+            if (Objs.Types.isPrimitive(value)) {
                 return value;
             }
             else if (Objs.Types.isFunction(value)) {
                 return value;
             }
-            else if (Objs.Types.isDate) {
-                return new Date((value as any as Date).getTime());
+            else if (Objs.Types.isDate(value)) {
+                return new Date((value as Date).getTime());
             }
             else {
                 // this is a complex type:
-                const clone = Object.create(value.constructor);
-                for (let propertyName in value) {
-                    clone[propertyName] = deepCloning ? this.deepClone(value[propertyName]) : value[propertyName];
+                const clone = Object.create(value);
+                for (const propertyName in value) {
+                    clone[propertyName] = (deepCloning ? this.deepClone(value[propertyName]) : value[propertyName]);
                 }
                 return clone;
             }

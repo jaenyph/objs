@@ -1,11 +1,11 @@
 declare namespace Objs {
     class Types {
         private constructor();
-        static isDefined(value: Object): boolean;
-        static isArray(value: Object): boolean;
-        static isFunction(value: Object): boolean;
-        static isNative(value: Object): boolean;
-        static isPrimitive(value: Object): boolean;
-        static isDate(value: Object): boolean;
+        static isDefined(value: any): boolean;
+        static isArray(value: any): boolean;
+        static isFunction(value: any): boolean;
+        static isNative(value: any): boolean;
+        static isPrimitive(value: any): boolean;
+        static isDate(value: any): boolean;
     }
 }
