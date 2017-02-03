@@ -4,7 +4,8 @@
   "description": "A typescript library for managing javascript objects",
   "scripts": {
     "build": "rm -rf typings/src && tsc",
-    "test": "karma start --single-run",
+    "test": "npm run build && karma start",
+    "test-once": "npm run build && karma start --single-run",
     "karma": "karma"
   },
   "repository": {
