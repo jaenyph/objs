@@ -25,6 +25,12 @@ module.exports = function(config) {
     ],
 
 
+    plugins: [
+        'karma-jasmine',
+        'karma-firefox-launcher'
+    ],
+    
+
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
@@ -51,7 +57,7 @@ module.exports = function(config) {
 
 
     // enable / disable watching file and executing tests whenever any file changes
-    autoWatch: false,
+    autoWatch: true,
 
 
     // start these browsers
