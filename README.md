@@ -4,6 +4,9 @@
 
 *as root :*
 
+    npm install typings --global
+    typings install dt~jasmine --save --global
+    
     npm install -g requirejs
     npm install -g jasmine
     npm install -g jasmine-core

@@ -1,8 +1,6 @@
 {
   "compilerOptions": {
     "alwaysStrict": true,
-    "declaration": true,
-    "declarationDir": "typings",
     "emitDecoratorMetadata": false,
     "experimentalDecorators": false,
     "forceConsistentCasingInFileNames": true,
