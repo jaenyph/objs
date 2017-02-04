@@ -134,7 +134,7 @@ namespace Objs {
             this.ensureObjectDefinedOrThrow(value);
 
             let history = this.getHistory(value);
-            if(history === undefined){
+            if (history === undefined) {
                 this.track(value);
                 return this;
             }
