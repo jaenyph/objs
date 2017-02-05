@@ -1,4 +1,7 @@
-##OB.JS
+# OB.JS
+### Status
+[![Build Status](https://api.travis-ci.org/jaenyph/objs.svg?branch=develop)](https://travis-ci.org/jaenyph/objs)
+
 
 ##install :
 
