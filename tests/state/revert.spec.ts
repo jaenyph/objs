@@ -4,6 +4,7 @@ describe("Objs.State.revert", () => {
     const notDefinedErrorMessage = "value is not defined";
     const primitiveErrorMessage = "could not act on a primitive value";
     const missingIdErrorMessage = "value does not defined an 'id' key"
+    const notTrackedErrorMessage = "object is not tracked";
     let sutConfiguration: Objs.IStateConfiguration;
 
     const getSut = () => {
@@ -33,6 +34,18 @@ describe("Objs.State.revert", () => {
 
     beforeEach(() => {
         sutConfiguration = undefined as any as Objs.IStateConfiguration;
+    });
+
+    it("throw when trying to revert an untracked object in reference tracking mode", () => {
+        withReferenceTracking();
+        const sut = getSut();
+        expect(sut.revert.bind(sut, {})).toThrowError(notTrackedErrorMessage);
+    });
+
+    it("throw when trying to revert an untracked object in id tracking mode", () => {
+        withIdTracking();
+        const sut = getSut();
+        expect(sut.revert.bind(sut, { "id": 1 })).toThrowError(notTrackedErrorMessage);
     });
 
     it("throws when trying to revert null in reference tracking mode", () => {

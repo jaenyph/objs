@@ -3,7 +3,8 @@
 describe("Objs.State.save", () => {
     const notDefinedErrorMessage = "value is not defined";
     const primitiveErrorMessage = "could not act on a primitive value";
-    const missingIdErrorMessage = "value does not defined an 'id' key"
+    const missingIdErrorMessage = "value does not defined an 'id' key";
+    const notTrackedErrorMessage = "object is not tracked";
     let sutConfiguration:Objs.IStateConfiguration;
 
     const getSut = () => {
@@ -33,6 +34,18 @@ describe("Objs.State.save", () => {
 
     beforeEach(() => {
         sutConfiguration = undefined as any as Objs.IStateConfiguration;
+    });
+
+    it("does not throw when trying to save an untracked object in reference tracking mode", () => {
+        withReferenceTracking();
+        const sut = getSut();
+        expect(sut.save.bind(sut, {})).not.toThrowError(notTrackedErrorMessage);
+    });
+
+    it("does not throw when trying to save an untracked object in id tracking mode", () => {
+        withIdTracking();
+        const sut = getSut();
+        expect(sut.save.bind(sut, { "id": 1 })).not.toThrowError(notTrackedErrorMessage);
     });
     
     it("throws when trying to save null in reference tracking mode", () => {
