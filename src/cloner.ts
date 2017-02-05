@@ -28,7 +28,14 @@ namespace Objs {
 
         private static cloneNonArray(value: Object, deepCloning: boolean): any {
             if (Objs.Types.isPrimitive(value)) {
-                return value;
+                switch (typeof value) {
+                    case "string":
+                        return (value !== undefined && value !== null)
+                            ? "" + value
+                            : value;
+                    default:
+                        return value;
+                }
             }
             else if (Objs.Types.isFunction(value)) {
                 return value;
@@ -64,28 +71,41 @@ namespace Objs {
             }
         }
 
-        public static areClones<T>(valueA:T, valueB:T) : boolean {
-            if(valueA === valueB || (valueA === undefined && valueB === undefined) || (valueA === null && valueB === null)){
+        // private static areSamePrimitives<T>(valueA: T, valueB: T): boolean {
+        //     if(valueA === valueB ){
+        //         return true;
+        //     }
+        //     else {
+        //         const typeofValueA = typeof valueA;
+        //         const typeofValueB = typeof valueB;
+        //         if(typeofValueA === "string" && typeofValueA === typeofValueB){
+        //             return valueA == valueB;
+        //         }
+        //         return false;
+        //     }
+        // }
+
+        public static areClones<T>(valueA: T, valueB: T): boolean {
+            if (valueA === valueB || (valueA === undefined && valueB === undefined) || (valueA === null && valueB === null)) {
                 return true;
             }
-            else{
-
+            else {
                 // one is null or undefined and not the other
-                if(valueA === null || valueA === undefined){
+                if (valueA === null || valueA === undefined) {
                     return false;
                 }
 
-                if(!Objs.Types.areSameTypes(valueA, valueB)){
+                if (!Objs.Types.areSameTypes(valueA, valueB)) {
                     return false;
                 }
 
-                if(!Objs.Types.isArray(valueA)){
+                if (!Objs.Types.isArray(valueA)) {
                     const isNativeValueA = Objs.Types.isNative(valueA);
                     const isNativeValueB = Objs.Types.isNative(valueB);
-                    if( (isNativeValueA && isNativeValueB)){
+                    if ((isNativeValueA && isNativeValueB)) {
                         // both native types (not object)
                         // just check against two equals dates here as they reference must be different but their values equal.
-                        if(Objs.Types.isDate(valueA) && Objs.Types.isDate(valueB)){
+                        if (Objs.Types.isDate(valueA) && Objs.Types.isDate(valueB)) {
                             return (valueA as any as Date).getTime() === (valueB as any as Date).getTime();
                         }
 
@@ -98,34 +118,34 @@ namespace Objs {
                     const keysALength = keysA.length;
                     const keysBLength = keysB.length;
 
-                    if(keysALength !== keysBLength) {
+                    if (keysALength !== keysBLength) {
                         return false;
                     }
 
-                    for(let index=0; index<keysALength; ++index){
+                    for (let index = 0; index < keysALength; ++index) {
                         const keyA = keysA[index];
-                        if(keysB.indexOf(keyA) < 0){
+                        if (keysB.indexOf(keyA) < 0) {
                             return false;
                         }
-                        if(!this.areClones(valueA[keyA], valueB[keyA])){
+                        if (!this.areClones(valueA[keyA], valueB[keyA])) {
                             return false;
                         }
                     }
-                    
+
                     return true;
                 }
-                else{
+                else {
                     const arrayA = valueA as any as any[];
                     const arrayB = valueB as any as any[];
                     const arrayALenght = arrayA.length;
                     const arrayBLenght = arrayB.length;
 
-                    if(arrayALenght !== arrayBLenght){
+                    if (arrayALenght !== arrayBLenght) {
                         return false;
                     }
 
-                    for(let index=0; index<arrayALenght; ++index){
-                        if(!this.areClones(arrayA[index], arrayB[index])){
+                    for (let index = 0; index < arrayALenght; ++index) {
+                        if (!this.areClones(arrayA[index], arrayB[index])) {
                             return false;
                         }
                     }
