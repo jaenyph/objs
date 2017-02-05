@@ -183,4 +183,24 @@ describe("Objs.State.revert", () => {
         // assert
         expect(actual).toEqual(tracked);
     });
+
+    it("can revert multiple times in reference tracking mode", () => {
+        // arrange
+        withReferenceTracking();
+        sutConfiguration.historyDepth = 3;
+        const sut = getSut();
+        const trackedObject = {
+            "prop" : "old"
+        };
+        sut.save(trackedObject);
+        trackedObject.prop = "new";
+        sut.save(trackedObject);
+        trackedObject.prop = "last";
+        sut.save(trackedObject);
+
+        // act / assert
+        expect(sut.revert(trackedObject).prop).toEqual("last");
+        expect(sut.revert(trackedObject).prop).toEqual("new");
+        expect(sut.revert(trackedObject).prop).toEqual("old");
+    });
 });

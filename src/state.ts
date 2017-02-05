@@ -95,7 +95,7 @@ namespace Objs {
                 case TrackingKind.Id:
                     return value[this.getCasedIdPropertyName()];
                 default:
-                    throw new Error("Unhandled tracking kind");
+                    throw new Error("unhandled tracking kind");
             }
         }
 
@@ -103,8 +103,8 @@ namespace Objs {
             if (!Objs.Types.isDefined(value)) {
                 throw new Error("value is not defined");
             }
-            if(this.configuration.trackingKind === Objs.TrackingKind.Id){
-                if(!value.hasOwnProperty(this.getCasedIdPropertyName())){
+            if (this.configuration.trackingKind === Objs.TrackingKind.Id) {
+                if (!value.hasOwnProperty(this.getCasedIdPropertyName())) {
                     throw new Error(`value does not defined an '${this.getCasedIdPropertyName()}' key`);
                 }
                 value.isPrototypeOf
@@ -130,10 +130,6 @@ namespace Objs {
             return history;
         }
 
-        private track<T>(value: T): void {
-            this.pristines.set(this.getTrackingKey(value), [Objs.Cloner.deepClone(value)]);
-        }
-
         /**
          * Whether or not the given object has changed compared to its previous tracked state
          * @param value : The object to check changed state
@@ -144,6 +140,17 @@ namespace Objs {
             this.ensureObjectDefinedOrThrow(value);
 
             return !Cloner.areClones(value, this.getHistoryOrThrow(value)[0]);
+        }
+
+        private clone<T>(value: T): T {
+            switch (this.configuration.pristineKind) {
+                case PristineKind.DeepClone:
+                    return Cloner.deepClone(value);
+                case PristineKind.ShallowClone:
+                    return Cloner.shallowClone(value);
+                default:
+                    throw new Error("unhandled pristine kind");
+            }
         }
 
         /**
@@ -157,7 +164,7 @@ namespace Objs {
 
             let history = this.getHistory(value);
             if (history === undefined) {
-                this.track(value);
+                this.pristines.set(this.getTrackingKey(value), [this.clone(value)]);
                 return this;
             }
 
@@ -165,9 +172,10 @@ namespace Objs {
                 return this;
             }
 
-            if (history.length === this.configuration.historyDepth) {
-                history.shift();
-                history.push(value)
+            const clone = this.clone(value);
+            const historyLenght = history.unshift(clone);
+            if (historyLenght > this.configuration.historyDepth) {
+                history.pop();
             }
             return this;
         }
@@ -199,11 +207,11 @@ namespace Objs {
 
             const history = this.getHistoryOrThrow(value);
 
-            if (history.length === 1) {
-                return history[0] as T;
+            if (history.length === 0) {
+                throw new Error("object could not be more reverted");
             }
 
-            return history.pop() as T;
+            return history.shift() as T;
         }
     }
 }
