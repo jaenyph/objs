@@ -9,26 +9,30 @@ namespace Objs {
         trackingKind: TrackingKind;
         /** The kind of pristines to store */
         pristineKind: PristineKind;
+        /** The kind of casing to use when accessing tracked objects properties names */
+        propertyNameCasingKind: PropertyNameCasingKind;
     }
 
-    /**
-     * Object tracking kind
-     */
+    /** Object tracking kind */
     export enum TrackingKind {
-        /** Rely on references to track objects */
+        /** Rely on references for tracking */
         Reference = 1,
-        /** Rely on hashes to track objects */
-        Hash = 2
+        /** Rely on object's id property for tracking */
+        Id = 2
     }
 
-    /**
-     * Object pristine kind
-     */
+    /** Object pristine kind */
     export enum PristineKind {
         /** Store deep clones in pristines history */
         DeepClone = 0,
         /** Store shallow clones in pristines history */
         ShallowClone = 1
+    }
+
+    /** The casing scheme used for tracked objects properties names  */
+    export enum PropertyNameCasingKind {
+        LowerCamelCase = 0,
+        UpperCamelCase = 1
     }
 
     /**
@@ -42,7 +46,8 @@ namespace Objs {
         public static defaultConfiguration: IStateConfiguration = {
             historyDepth: 7,
             trackingKind: TrackingKind.Reference,
-            pristineKind: PristineKind.DeepClone
+            pristineKind: PristineKind.DeepClone,
+            propertyNameCasingKind: PropertyNameCasingKind.LowerCamelCase
         };
 
         constructor(configuration?: IStateConfiguration) {
@@ -62,6 +67,17 @@ namespace Objs {
             this.configuration = configuration;
         }
 
+        private getCasedIdPropertyName(): string {
+            switch (this.configuration.propertyNameCasingKind) {
+                case PropertyNameCasingKind.LowerCamelCase:
+                    return "id";
+                case PropertyNameCasingKind.UpperCamelCase:
+                    return "Id";
+                default:
+                    throw new Error("unsupported casing");
+            }
+        }
+
         /** Clear all tracked objects and associated states history */
         public clear(): State {
             this.pristines.forEach((value) => {
@@ -76,8 +92,8 @@ namespace Objs {
             switch (this.configuration.trackingKind) {
                 case TrackingKind.Reference:
                     return value;
-                case TrackingKind.Hash:
-                    return Objs.Types.getHashCode(value);
+                case TrackingKind.Id:
+                    return value[this.getCasedIdPropertyName()];
                 default:
                     throw new Error("Unhandled tracking kind");
             }
@@ -86,6 +102,12 @@ namespace Objs {
         private ensureObjectDefinedOrThrow(value: Object): void {
             if (!Objs.Types.isDefined(value)) {
                 throw new Error("value is not defined");
+            }
+            if(this.configuration.trackingKind === Objs.TrackingKind.Id){
+                if(!value.hasOwnProperty(this.getCasedIdPropertyName())){
+                    throw new Error(`value does not defined an '${this.getCasedIdPropertyName()}' key`);
+                }
+                value.isPrototypeOf
             }
             if (Objs.Types.isPrimitive(value)) {
                 throw new Error("could not act on a primitive value");

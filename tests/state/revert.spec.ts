@@ -21,7 +21,22 @@ describe("Objs.State.revert", () => {
     });
 
     it("does not throws when trying to revert a date", () => {
-        const valueToRevert = new Date()
+        const valueToRevert = new Date();
         expect(sut.revert.bind(sut, valueToRevert)).not.toThrowError(primitiveErrorMessage);
+    });
+
+    it("is reverted to previous state", () => {
+        // arrange
+        const tracked = {
+            "prop" : "old"
+        };
+        sut.save(tracked);
+        tracked.prop = "new";
+
+        // act
+        const actual = sut.revert(tracked);
+
+        // assert
+        expect(actual).not.toEqual(tracked);
     });
 });
