@@ -196,6 +196,24 @@ namespace Objs {
             return this;
         }
 
+		/**
+         * Peek the last object state in history without reverting it
+         * @param value : The object to peek the last saved state
+         * @throw "Error" if the given value is not defined or not a complex object (i.e. primitive type);
+         */
+        public peek<T>(value: T): T {
+
+            this.ensureObjectDefinedOrThrow(value);
+
+            const history = this.getHistoryOrThrow(value);
+
+            if (history.length === 0) {
+                throw new Error("object state could not be peeked");
+            }
+
+            return history[0] as T;
+        }
+
         /**
          * Revert current object states changes
          * @returns the previous object saved state
