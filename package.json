@@ -4,8 +4,8 @@
   "description": "A typescript library for managing javascript objects",
   "scripts": {
     "build": "tsc",
-	"build-single" : "cp -f tsconfig.json src && tsc --module amd --project src --outFile build/ob.js && rm -f src/tsconfig.json",
-	"build-single-win" : "copy /Y tsconfig.json src && tsc --module amd --project src --outFile build\\ob.js && del src\\tsconfig.json",
+    "build-single" : "cp -f tsconfig.json src && tsc --declaration --module amd --project src --outFile build/ob.js && rm -f src/tsconfig.json",
+    "build-single-win" : "copy /Y tsconfig.json src && tsc --declaration --module amd --project src --outFile build\\ob.js && del src\\tsconfig.json",
     "watch": "tsc -w",
     "test": "npm run build && karma start",
     "test-once": "npm run build && karma start --single-run",
