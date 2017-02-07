@@ -1,39 +1,39 @@
 /// <reference path="../../typings/globals/jasmine/index.d.ts" />
 /// <reference path="../../src/state.ts" />
-describe("Objs.State.peek", () => {
+describe("Objs.States.StateTracker.peek", () => {
     const notDefinedErrorMessage = "value is not defined";
     const primitiveErrorMessage = "could not act on a primitive value";
     const missingIdErrorMessage = "value does not defined an 'id' key"
     const notTrackedErrorMessage = "object is not tracked";
-    let sutConfiguration: Objs.IStateConfiguration;
+    let sutConfiguration: Objs.States.IStateTrackerConfiguration;
 
     const getSut = () => {
         if (sutConfiguration === undefined) {
             throw new Error("sut configuration not set");
         }
-        return new Objs.State(sutConfiguration);
+        return new Objs.States.StateTracker(sutConfiguration);
     };
 
     const withReferenceTracking = () => {
         sutConfiguration = {
             historyDepth: 1,
-            pristineKind: Objs.PristineKind.DeepClone,
-            propertyNameCasingKind: Objs.PropertyNameCasingKind.LowerCamelCase,
-            trackingKind: Objs.TrackingKind.Reference
+            pristineKind: Objs.States.PristineKind.DeepClone,
+            propertyNameCasingKind: Objs.States.PropertyNameCasingKind.LowerCamelCase,
+            trackingKind: Objs.States.TrackingKind.Reference
         };
     }
 
     const withIdTracking = () => {
         sutConfiguration = {
             historyDepth: 1,
-            pristineKind: Objs.PristineKind.DeepClone,
-            propertyNameCasingKind: Objs.PropertyNameCasingKind.LowerCamelCase,
-            trackingKind: Objs.TrackingKind.Id
+            pristineKind: Objs.States.PristineKind.DeepClone,
+            propertyNameCasingKind: Objs.States.PropertyNameCasingKind.LowerCamelCase,
+            trackingKind: Objs.States.TrackingKind.Id
         };
     }
 
     beforeEach(() => {
-        sutConfiguration = undefined as any as Objs.IStateConfiguration;
+        sutConfiguration = undefined as any as Objs.States.IStateTrackerConfiguration;
     });
 
     it("throw when trying to peek an untracked object in reference tracking mode", () => {

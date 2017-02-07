@@ -1,7 +1,7 @@
 /// <reference path="../../typings/globals/jasmine/index.d.ts" />
 /// <reference path="../../src/cloner.ts" />
-describe("Objs.Cloner.deepClone", () => {
-    const sut = Objs.Cloner;
+describe("Objs.Cloning.Cloner.deepClone", () => {
+    const sut = Objs.Cloning.Cloner;
 
     it("returns new array", () => {
         const originalArray: any[] = [];

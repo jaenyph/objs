@@ -1,11 +1,13 @@
 /// <reference path="types.ts" />
-namespace Objs {
+namespace Objs.Cloning {
+
     /**
      * Performs shallow cloning of objects
      * Cloning an array, gives a new array full of shallow clones of original items
      */
     export class Cloner {
-        public static shallowClone<T>(value: T): T {
+
+         public static shallowClone<T>(value: T): T {
             if (!Objs.Types.isArray(value)) {
                 return this.cloneNonArray(value, false);
             } else {
@@ -24,6 +26,46 @@ namespace Objs {
                 }
                 return clone as any as T;
             }
+        }
+
+        private static assignTo<T>(target: T, source: Object): T {
+            const targetKeys = Object.keys(target);
+            const sourceKeys = Object.keys(source);
+            targetKeys.forEach((key) => {
+                if (sourceKeys.indexOf(key) < 0) {
+                    delete target[key];
+                }
+            });
+
+            return Object.assign(target, source);
+        }
+
+        private static ensurekSyncableOrThrow<T>(target: T, source: Object): void {
+            if (!Objs.Types.isDefined(target)) {
+                throw new Error("target is not defined");
+            }
+
+            if (!Objs.Types.isDefined(source)) {
+                throw new Error("source is not defined");
+            }
+
+            if (Objs.Types.isPrimitive(target) || Objs.Types.isPrimitive(source)) {
+                throw new Error("could not act on primitive");
+            }
+
+            if (typeof target !== typeof source) {
+                throw new Error("source and target types must match");
+            }
+        }
+
+        public static shallowCloneTo<T>(target: T, source: Object): T {
+            this.ensurekSyncableOrThrow(target, source);
+            return this.assignTo(target, source);
+        }
+
+        public static deepCloneTo<T>(target: T, source: Object): T {
+            this.ensurekSyncableOrThrow(target, source);
+            return this.assignTo(target, this.deepClone(source));
         }
 
         private static cloneNonArray(value: Object, deepCloning: boolean): any {
@@ -47,7 +89,9 @@ namespace Objs {
                 // this is a complex type:
                 const clone = Object.create(value);
                 for (const propertyName in value) {
-                    clone[propertyName] = (deepCloning ? this.deepClone(value[propertyName]) : value[propertyName]);
+                    if (value.hasOwnProperty(propertyName)) {
+                        clone[propertyName] = (deepCloning ? this.deepClone(value[propertyName]) : value[propertyName]);
+                    }
                 }
                 return clone;
             }
@@ -68,90 +112,6 @@ namespace Objs {
                     clone[index] = this.deepClone(array[index]);
                 }
                 return clone as any as T;
-            }
-        }
-
-        // private static areSamePrimitives<T>(valueA: T, valueB: T): boolean {
-        //     if(valueA === valueB ){
-        //         return true;
-        //     }
-        //     else {
-        //         const typeofValueA = typeof valueA;
-        //         const typeofValueB = typeof valueB;
-        //         if(typeofValueA === "string" && typeofValueA === typeofValueB){
-        //             return valueA == valueB;
-        //         }
-        //         return false;
-        //     }
-        // }
-
-        public static areClones<T>(valueA: T, valueB: T): boolean {
-            if (valueA === valueB || (valueA === undefined && valueB === undefined) || (valueA === null && valueB === null)) {
-                return true;
-            }
-            else {
-                // one is null or undefined and not the other
-                if (valueA === null || valueA === undefined) {
-                    return false;
-                }
-
-                if (!Objs.Types.areSameTypes(valueA, valueB)) {
-                    return false;
-                }
-
-                if (!Objs.Types.isArray(valueA)) {
-                    const isNativeValueA = Objs.Types.isNative(valueA);
-                    const isNativeValueB = Objs.Types.isNative(valueB);
-                    if ((isNativeValueA && isNativeValueB)) {
-                        // both native types (not object)
-                        // just check against two equals dates here as they reference must be different but their values equal.
-                        if (Objs.Types.isDate(valueA) && Objs.Types.isDate(valueB)) {
-                            return (valueA as any as Date).getTime() === (valueB as any as Date).getTime();
-                        }
-
-                        return false;
-                    }
-
-                    // both are objects
-                    const keysA = Object.keys(valueA);
-                    const keysB = Object.keys(valueB);
-                    const keysALength = keysA.length;
-                    const keysBLength = keysB.length;
-
-                    if (keysALength !== keysBLength) {
-                        return false;
-                    }
-
-                    for (let index = 0; index < keysALength; ++index) {
-                        const keyA = keysA[index];
-                        if (keysB.indexOf(keyA) < 0) {
-                            return false;
-                        }
-                        if (!this.areClones(valueA[keyA], valueB[keyA])) {
-                            return false;
-                        }
-                    }
-
-                    return true;
-                }
-                else {
-                    const arrayA = valueA as any as any[];
-                    const arrayB = valueB as any as any[];
-                    const arrayALenght = arrayA.length;
-                    const arrayBLenght = arrayB.length;
-
-                    if (arrayALenght !== arrayBLenght) {
-                        return false;
-                    }
-
-                    for (let index = 0; index < arrayALenght; ++index) {
-                        if (!this.areClones(arrayA[index], arrayB[index])) {
-                            return false;
-                        }
-                    }
-
-                    return true;
-                }
             }
         }
     }

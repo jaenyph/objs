@@ -1,8 +1,8 @@
 /// <reference path="types.ts" />
-namespace Objs {
+namespace Objs.States {
 
     /** Configuration for the State manager object */
-    export interface IStateConfiguration {
+    export interface IStateTrackerConfiguration {
         /** The maximum pristines versions to store for an object */
         historyDepth: number;
         /** The way to track an object for changes */
@@ -38,25 +38,25 @@ namespace Objs {
     /**
      * Track changes, save and restore states of tracked objects
      */
-    export class State {
+    export class StateTracker {
 
         private pristines: Map<Object, Object[]>
-        private configuration: IStateConfiguration;
+        private configuration: IStateTrackerConfiguration;
 
-        public static defaultConfiguration: IStateConfiguration = {
+        public static defaultConfiguration: IStateTrackerConfiguration = {
             historyDepth: 7,
             trackingKind: TrackingKind.Reference,
             pristineKind: PristineKind.DeepClone,
             propertyNameCasingKind: PropertyNameCasingKind.LowerCamelCase
         };
 
-        constructor(configuration?: IStateConfiguration) {
+        constructor(configuration?: IStateTrackerConfiguration) {
 
             if (configuration === null) {
                 throw new Error("configuration can not be null");
             }
 
-            configuration = configuration || State.defaultConfiguration;
+            configuration = configuration || StateTracker.defaultConfiguration;
 
             //check configuration for inconsistencies
             if (configuration.historyDepth < 1) {
@@ -79,7 +79,7 @@ namespace Objs {
         }
 
         /** Clear all tracked objects and associated states history */
-        public clear(): State {
+        public clear(): StateTracker {
             this.pristines.forEach((value) => {
                 value.splice(0, value.length);
             })
@@ -103,7 +103,7 @@ namespace Objs {
             if (!Objs.Types.isDefined(value)) {
                 throw new Error("value is not defined");
             }
-            if (this.configuration.trackingKind === Objs.TrackingKind.Id) {
+            if (this.configuration.trackingKind === Objs.States.TrackingKind.Id) {
                 if (!value.hasOwnProperty(this.getCasedIdPropertyName())) {
                     throw new Error(`value does not defined an '${this.getCasedIdPropertyName()}' key`);
                 }
@@ -135,19 +135,19 @@ namespace Objs {
          * @param value : The object to check changed state
          * @throw "Error" if the given value is not defined or not a complex object (i.e. primitive type);
          */
-        public isChanged(value: Object): boolean {
+        public isChanged(value: Object, comparisonOptions?: Objs.Comparison.IEquivalenceComparisonOptions): boolean {
 
             this.ensureObjectDefinedOrThrow(value);
 
-            return !Cloner.areClones(value, this.getHistoryOrThrow(value)[0]);
+            return !Objs.Comparison.Comparer.areEquivalent(value, this.getHistoryOrThrow(value)[0], comparisonOptions);
         }
 
         private clone<T>(value: T): T {
             switch (this.configuration.pristineKind) {
                 case PristineKind.DeepClone:
-                    return Cloner.deepClone(value);
+                    return Objs.Cloning.Cloner.deepClone(value);
                 case PristineKind.ShallowClone:
-                    return Cloner.shallowClone(value);
+                    return Objs.Cloning.Cloner.shallowClone(value);
                 default:
                     throw new Error("unhandled pristine kind");
             }
@@ -158,7 +158,7 @@ namespace Objs {
          * @param value : The object to save state
          * @throw "Error" if the given value is not defined or not a complex object (i.e. primitive type);
          */
-        public save(value: Object): State {
+        public save(value: Object): StateTracker {
 
             this.ensureObjectDefinedOrThrow(value);
 
@@ -168,7 +168,7 @@ namespace Objs {
                 return this;
             }
 
-            if (Cloner.areClones(value, history[0])) {
+            if (Objs.Comparison.Comparer.areEquivalent(value, history[0])) {
                 return this;
             }
 
@@ -185,13 +185,13 @@ namespace Objs {
          * @param value : The object to clear the related states history
          * @throw "Error" if the given value is not defined or not a complex object (i.e. primitive type);
          */
-        public reset(value: Object): State {
+        public reset(value: Object): StateTracker {
 
             this.ensureObjectDefinedOrThrow(value);
 
             const history = this.getHistoryOrThrow(value);
 
-            history.splice(0, history.length, value);
+            history.splice(0, history.length, this.clone(value));
 
             return this;
         }
