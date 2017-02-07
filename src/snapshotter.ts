@@ -1,69 +1,70 @@
 /// <reference path="types.ts" />
-namespace Objs.States {
+namespace Objs.Snapshots {
 
-    /** Configuration for the State manager object */
-    export interface IStateTrackerConfiguration {
-        /** The maximum pristines versions to store for an object */
+    /** Configuration for the Snapshotter */
+    export interface ISnapshotterConfiguration {
+        /** The maximum snapshots to store for an object */
         historyDepth: number;
-        /** The way to track an object for changes */
-        trackingKind: TrackingKind;
-        /** The kind of pristines to store */
-        pristineKind: PristineKind;
-        /** The kind of casing to use when accessing tracked objects properties names */
+        /** The way to identify a snapshot */
+        identificationKind: IdentificationKind;
+        /** The kind of snapshots to store */
+        snapshotKind: SnapshotKind;
+        /** The kind of casing to use when accessing snapshots properties names */
         propertyNameCasingKind: PropertyNameCasingKind;
     }
 
-    /** Object tracking kind */
-    export enum TrackingKind {
-        /** Rely on references for tracking */
+    /** Snapshot identification kind */
+    export enum IdentificationKind {
+        /** Rely on references for identifying a snapshot */
         Reference = 1,
-        /** Rely on object's id property for tracking */
+        /** Rely on snapshot's id property for tracking */
         Id = 2
     }
 
-    /** Object pristine kind */
-    export enum PristineKind {
-        /** Store deep clones in pristines history */
+    /** Kind of snapshot */
+    export enum SnapshotKind {
+        /** Perform deep clones snapshots */
         DeepClone = 0,
-        /** Store shallow clones in pristines history */
+        /** Perform shallow clones snapshots */
         ShallowClone = 1
     }
 
-    /** The casing scheme used for tracked objects properties names  */
+    /** The casing scheme used for snapshots properties names  */
     export enum PropertyNameCasingKind {
         LowerCamelCase = 0,
         UpperCamelCase = 1
     }
 
     /**
-     * Track changes, save and restore states of tracked objects
+     * Perform snapshots of objects, allowing creating objects' states history
      */
-    export class StateTracker {
+    export class Snapshotter {
 
-        private pristines: Map<Object, Object[]>
-        private configuration: IStateTrackerConfiguration;
+        private snapshots: Map<Object, Object[]>
+        private configuration: ISnapshotterConfiguration;
 
-        public static defaultConfiguration: IStateTrackerConfiguration = {
+        private static defaultConfiguration: ISnapshotterConfiguration = {
             historyDepth: 7,
-            trackingKind: TrackingKind.Reference,
-            pristineKind: PristineKind.DeepClone,
+            identificationKind: IdentificationKind.Reference,
+            snapshotKind: SnapshotKind.DeepClone,
             propertyNameCasingKind: PropertyNameCasingKind.LowerCamelCase
         };
 
-        constructor(configuration?: IStateTrackerConfiguration) {
+        /** Instanciate a new Snapshotter */
+        constructor(configuration?: ISnapshotterConfiguration) {
 
             if (configuration === null) {
                 throw new Error("configuration can not be null");
             }
 
-            configuration = configuration || StateTracker.defaultConfiguration;
+            configuration = configuration || Snapshotter.defaultConfiguration;
 
-            //check configuration for inconsistencies
+            // check configuration for inconsistencies
             if (configuration.historyDepth < 1) {
                 throw new Error("historyDepth could not be less than 1");
             }
 
-            this.pristines = new Map<Object, Object[]>();
+            this.snapshots = new Map<Object, Object[]>();
             this.configuration = configuration;
         }
 
@@ -78,24 +79,24 @@ namespace Objs.States {
             }
         }
 
-        /** Clear all tracked objects and associated states history */
-        public clear(): StateTracker {
-            this.pristines.forEach((value) => {
-                value.splice(0, value.length);
+        /** Clear all snapshots */
+        public clearAll(): Snapshotter {
+            this.snapshots.forEach((history) => {
+                history.splice(0, history.length);
             })
-            this.pristines.clear();
+            this.snapshots.clear();
             return this;
         }
 
-        /** Get the object tracking key that serve as identifier for our pristines history */
-        private getTrackingKey(value: Object): any {
-            switch (this.configuration.trackingKind) {
-                case TrackingKind.Reference:
+        /** Get the identifier value for our snapshots history */
+        private getIdentifier(value: Object): any {
+            switch (this.configuration.identificationKind) {
+                case IdentificationKind.Reference:
                     return value;
-                case TrackingKind.Id:
+                case IdentificationKind.Id:
                     return value[this.getCasedIdPropertyName()];
                 default:
-                    throw new Error("unhandled tracking kind");
+                    throw new Error("unhandled identification kind");
             }
         }
 
@@ -103,9 +104,9 @@ namespace Objs.States {
             if (!Objs.Types.isDefined(value)) {
                 throw new Error("value is not defined");
             }
-            if (this.configuration.trackingKind === Objs.States.TrackingKind.Id) {
+            if (this.configuration.identificationKind === Objs.Snapshots.IdentificationKind.Id) {
                 if (!value.hasOwnProperty(this.getCasedIdPropertyName())) {
-                    throw new Error(`value does not defined an '${this.getCasedIdPropertyName()}' key`);
+                    throw new Error(`value does not defined an '${this.getCasedIdPropertyName()}' property`);
                 }
                 value.isPrototypeOf
             }
@@ -115,24 +116,24 @@ namespace Objs.States {
         }
 
         private getHistory<T>(value: T): T[] {
-            const trackingKey = this.getTrackingKey(value);
-            if (!this.pristines.has(trackingKey)) {
+            const trackingKey = this.getIdentifier(value);
+            if (!this.snapshots.has(trackingKey)) {
                 return undefined as any as T[];
             }
-            return (this.pristines.get(trackingKey) as T[]);
+            return (this.snapshots.get(trackingKey) as T[]);
         }
 
         private getHistoryOrThrow<T>(value: T): T[] {
             const history = this.getHistory(value);
             if (history === undefined) {
-                throw new Error("object is not tracked");
+                throw new Error("value has no snapshots");
             }
             return history;
         }
 
         /**
-         * Whether or not the given object has changed compared to its previous tracked state
-         * @param value : The object to check changed state
+         * Whether or not the given value has changed compared to its last snapshot
+         * @param value : The object to check
          * @throw "Error" if the given value is not defined or not a complex object (i.e. primitive type);
          */
         public isChanged(value: Object, comparisonOptions?: Objs.Comparison.IEquivalenceComparisonOptions): boolean {
@@ -143,28 +144,28 @@ namespace Objs.States {
         }
 
         private clone<T>(value: T): T {
-            switch (this.configuration.pristineKind) {
-                case PristineKind.DeepClone:
+            switch (this.configuration.snapshotKind) {
+                case SnapshotKind.DeepClone:
                     return Objs.Cloning.Cloner.deepClone(value);
-                case PristineKind.ShallowClone:
+                case SnapshotKind.ShallowClone:
                     return Objs.Cloning.Cloner.shallowClone(value);
                 default:
-                    throw new Error("unhandled pristine kind");
+                    throw new Error("unhandled snapshot kind");
             }
         }
 
         /**
-         * Save the given object state if changes are detected
-         * @param value : The object to save state
+         * Save the given value to a new snapshot
+         * @param value : The object to save
          * @throw "Error" if the given value is not defined or not a complex object (i.e. primitive type);
          */
-        public save(value: Object): StateTracker {
+        public save(value: Object): Snapshotter {
 
             this.ensureObjectDefinedOrThrow(value);
 
             let history = this.getHistory(value);
             if (history === undefined) {
-                this.pristines.set(this.getTrackingKey(value), [this.clone(value)]);
+                this.snapshots.set(this.getIdentifier(value), [this.clone(value)]);
                 return this;
             }
 
@@ -181,11 +182,11 @@ namespace Objs.States {
         }
 
         /**
-         * Clear the given object states history and considere it in its initial tracking state
-         * @param value : The object to clear the related states history
+         * Clear the the snapshots related to the given value
+         * @param value : The object to clear the related snapshots
          * @throw "Error" if the given value is not defined or not a complex object (i.e. primitive type);
          */
-        public reset(value: Object): StateTracker {
+        public clear(value: Object): Snapshotter {
 
             this.ensureObjectDefinedOrThrow(value);
 
@@ -197,8 +198,8 @@ namespace Objs.States {
         }
 
 		/**
-         * Peek the last object state in history without reverting it
-         * @param value : The object to peek the last saved state
+         * Peek the last snapshot without revertion
+         * @param value : The object to peek the last snapshot
          * @throw "Error" if the given value is not defined or not a complex object (i.e. primitive type);
          */
         public peek<T>(value: T): T {
@@ -208,15 +209,16 @@ namespace Objs.States {
             const history = this.getHistoryOrThrow(value);
 
             if (history.length === 0) {
-                throw new Error("object state could not be peeked");
+                throw new Error("snapshot could not be peeked");
             }
 
             return history[0] as T;
         }
 
         /**
-         * Revert current object states changes
-         * @returns the previous object saved state
+         * Revert given value to the last snapshot
+         * @param value : The object to revert with the last snapshot
+         * @returns the last snapshot
          * @throw "Error" if the given value is not defined or not a complex object (i.e. primitive type);
          */
         public revert<T>(value: T): T {
@@ -226,7 +228,7 @@ namespace Objs.States {
             const history = this.getHistoryOrThrow(value);
 
             if (history.length === 0) {
-                throw new Error("object could not be more reverted");
+                throw new Error("value could not be more reverted");
             }
 
             return history.shift() as T;

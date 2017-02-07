@@ -1,39 +1,39 @@
 /// <reference path="../../typings/globals/jasmine/index.d.ts" />
-/// <reference path="../../src/state.ts" />
-describe("Objs.States.StateTraker.isChanged", () => {
+/// <reference path="../../src/snapshotter.ts" />
+describe("Objs.Snapshots.Snapshotter.isChanged", () => {
     const notDefinedErrorMessage = "value is not defined";
     const primitiveErrorMessage = "could not act on a primitive value";
-    const missingIdErrorMessage = "value does not defined an 'id' key";
-    const notTrackedErrorMessage = "object is not tracked";
-    let sutConfiguration: Objs.States.IStateTrackerConfiguration;
+    const missingIdErrorMessage = "value does not defined an 'id' property";
+    const notTrackedErrorMessage = "value has no snapshots";
+    let sutConfiguration: Objs.Snapshots.ISnapshotterConfiguration;
 
     const getSut = () => {
         if (sutConfiguration === undefined) {
             throw new Error("sut configuration not set");
         }
-        return new Objs.States.StateTracker(sutConfiguration);
+        return new Objs.Snapshots.Snapshotter(sutConfiguration);
     };
 
     const withReferenceTracking = () => {
         sutConfiguration = {
             historyDepth: 1,
-            pristineKind: Objs.States.PristineKind.DeepClone,
-            propertyNameCasingKind: Objs.States.PropertyNameCasingKind.LowerCamelCase,
-            trackingKind: Objs.States.TrackingKind.Reference
+            snapshotKind: Objs.Snapshots.SnapshotKind.DeepClone,
+            propertyNameCasingKind: Objs.Snapshots.PropertyNameCasingKind.LowerCamelCase,
+            identificationKind: Objs.Snapshots.IdentificationKind.Reference
         };
     }
 
     const withIdTracking = () => {
         sutConfiguration = {
             historyDepth: 1,
-            pristineKind: Objs.States.PristineKind.DeepClone,
-            propertyNameCasingKind: Objs.States.PropertyNameCasingKind.LowerCamelCase,
-            trackingKind: Objs.States.TrackingKind.Id
+            snapshotKind: Objs.Snapshots.SnapshotKind.DeepClone,
+            propertyNameCasingKind: Objs.Snapshots.PropertyNameCasingKind.LowerCamelCase,
+            identificationKind: Objs.Snapshots.IdentificationKind.Id
         };
     }
 
     beforeEach(() => {
-        sutConfiguration = undefined as any as Objs.States.IStateTrackerConfiguration;
+        sutConfiguration = undefined as any as Objs.Snapshots.ISnapshotterConfiguration;
     });
 
     it("throw when trying to check an untracked object in reference tracking mode", () => {
@@ -94,14 +94,14 @@ describe("Objs.States.StateTraker.isChanged", () => {
         withReferenceTracking();
         const valueToCheck = 3.14;
         const sut = getSut();
-        expect(sut.reset.bind(sut, valueToCheck)).toThrowError(primitiveErrorMessage);
+        expect(sut.clear.bind(sut, valueToCheck)).toThrowError(primitiveErrorMessage);
     });
 
     it("throws when trying to check a number in id tracking mode", () => {
         withIdTracking();
         const valueToCheck = 3.14;
         const sut = getSut();
-        expect(sut.reset.bind(sut, valueToCheck)).toThrowError(missingIdErrorMessage);
+        expect(sut.clear.bind(sut, valueToCheck)).toThrowError(missingIdErrorMessage);
     });
 
     it("throws when trying to check a string in reference tracking mode", () => {
