@@ -101,17 +101,86 @@ namespace Objs.Cloning {
          * Performs deep cloning of objects
          */
         public static deepClone<T>(value: T): T {
+            //return this.deepCloneStraight(value);
+            const processedReferences = new Map<Object, any>();
+            const clone = this.deepCloneCycles(value, processedReferences);
+            processedReferences.clear();
+            return clone;
+        }
+
+        // /** Simple and straight deep cloning */
+        // private static deepCloneStraight<T>(value: T): T {
+        //     if (!Objs.Types.isArray(value)) {
+        //         return this.cloneNonArray(value, true);
+        //     }
+        //     else {
+        //         const array = value as any as any[];
+        //         const length = array.length;
+        //         const clone = new Array(array.length);
+        //         for (let index = 0; index < length; ++index) {
+        //             clone[index] = this.deepClone(array[index]);
+        //         }
+        //         return clone as any as T;
+        //     }
+        // }
+
+        /** Deep cloning with cycles handling */
+        private static deepCloneCycles<T>(value: T, processedReferences:Map<Object,any>): T {
+            const typeOfValue = typeof value;
+            if((typeOfValue === "object" || typeOfValue === "array") && processedReferences.has(value)){
+                return processedReferences.get(value);
+            }
+
             if (!Objs.Types.isArray(value)) {
-                return this.cloneNonArray(value, true);
+                return this.cloneCyclesNonArray(value, true, processedReferences);
             }
             else {
                 const array = value as any as any[];
                 const length = array.length;
                 const clone = new Array(array.length);
+                processedReferences.set(value, clone);
                 for (let index = 0; index < length; ++index) {
-                    clone[index] = this.deepClone(array[index]);
+                    clone[index] = this.deepCloneCycles(array[index],processedReferences);
                 }
                 return clone as any as T;
+            }
+        }
+
+        private static cloneCyclesNonArray(value: Object, deepCloning: boolean, processedReferences:Map<Object,any>): any {
+            if (Objs.Types.isPrimitive(value)) {
+                switch (typeof value) {
+                    case "string":
+                        return (value !== undefined && value !== null)
+                            ? "" + value
+                            : value;
+                    default:
+                        return value;
+                }
+            }
+            else if (Objs.Types.isFunction(value)) {
+                return value;
+            }
+            else {
+
+                if(processedReferences.has(value)){
+                    return processedReferences.get(value);
+                }
+
+                if (Objs.Types.isDate(value)) {
+                    const clone = new Date((value as Date).getTime());
+                    processedReferences.set(value, clone);
+                    return clone;
+                }
+
+                // this is a complex type:
+                const clone = Object.create(value);
+                processedReferences.set(value, clone);
+                for (const propertyName in value) {
+                    if (value.hasOwnProperty(propertyName)) {
+                        clone[propertyName] = (deepCloning ? this.deepCloneCycles(value[propertyName], processedReferences) : value[propertyName]);
+                    }
+                }
+                return clone;
             }
         }
     }

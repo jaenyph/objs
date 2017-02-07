@@ -103,7 +103,7 @@ describe("Objs.Comparison.Comparer.areEquivalent", () => {
         expect(actual).toBe(true);
     });
 
-    it("cals isPropertyExcluded, with property name and value, when comparison options defines it", () => {
+    it("calls isPropertyExcluded, with property name and value, when comparison options defines it", () => {
         const options: Objs.Comparison.IEquivalenceComparisonOptions = {
             isPropertyExcluded : (key, value) => { 
                 switch(key){
@@ -118,5 +118,27 @@ describe("Objs.Comparison.Comparer.areEquivalent", () => {
             }
         };
         sut.areEquivalent({ "str": "abc", "fnc" : () => {} }, {"str": "abc", "fnc" : () => {}} , options);
+    });
+
+    // TODO: fix comparer to handle cycles
+    xit("returns true for cloned objects with cycles", () => {
+        // arrange
+        const original = {
+            prop : {
+                root : undefined,
+                arr : []
+            }
+        };
+        original.prop.root = original as any;
+        original.prop.arr.push(original as never);
+        original.prop.arr.push(original.prop as never);
+
+        const clone = Objs.Cloning.Cloner.deepClone(original);
+
+        // act
+        const actual = sut.areEquivalent(original, clone);
+
+        // assert
+        expect(actual).toBe(true);
     });
 });
