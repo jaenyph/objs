@@ -4,11 +4,13 @@
   "description": "A typescript library for managing javascript objects",
   "scripts": {
     "build": "tsc",
-    "build-single" : "cp -f tsconfig.json src && tsc --declaration --module amd --project src --outFile build/ob.js && rm -f src/tsconfig.json",
+    "build-single" : "cp -f tsconfig.json src && tsc --declaration --module amd --project src --outFile build/ob.js && rm -f src/tsconfig.json && npm run uglify-build-single",
     "watch": "tsc -w",
+    "uglify-build-single": "uglifyjs --compress --mangle --source-map build/ob.min.map --output  build/ob.min.js -- build/ob.js",
     "test": "npm run build && karma start",
     "test-once": "npm run build && karma start --single-run",
-    "karma": "karma"
+    "karma": "karma",
+	"uglifyjs": "uglifyjs"
   },
   "repository": {
     "type": "git",
@@ -36,6 +38,7 @@
     "karma-requirejs": "^1.1.0",
     "requirejs": "~2.3.2",
     "tslint": "~3.15.0",
-    "typescript": "~2.1.0"
+    "typescript": "~2.1.0",
+    "uglify-js": "~2.7.5"
   }
 }
