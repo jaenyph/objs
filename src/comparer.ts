@@ -8,7 +8,6 @@ namespace Objs.Comparison {
         ignoreMissingPropertyWhenUndefined?: boolean;
     }
 
-
     export class Comparer {
 
         private static defaultClonesComparisonOptions: IEquivalenceComparisonOptions = {
@@ -21,6 +20,46 @@ namespace Objs.Comparison {
             valueA: T,
             valueB: T,
             comparisonOptions?: IEquivalenceComparisonOptions): boolean {
+
+            const processedReferences = new Map<Object, Map<Object, boolean>>();
+            const result = this.checkForEquivalence(valueA, valueB, processedReferences, comparisonOptions);
+            processedReferences.forEach((entry) => { entry.clear(); });
+            processedReferences.clear();
+            return result;
+        }
+
+        /** Store any processed references and result to avoid infinite recursion when cycling through references */
+        private static storeProcessedEquivalenceComparison<T>(
+            valueA: T,
+            valueB: T,
+            isEquivalent: boolean,
+            processedReferences: Map<Object, Map<Object, boolean>>): void {
+            let valueAComparisons: Map<Object, boolean>;
+            if (processedReferences.has(valueA)) {
+                valueAComparisons = processedReferences.get(valueA) as any as Map<Object, boolean>;
+            }
+            else {
+                valueAComparisons = new Map();
+                processedReferences.set(valueA, valueAComparisons);
+            }
+            valueAComparisons.set(valueB, isEquivalent);
+        }
+
+        /** Check for object equivalence with references cycles handling */
+        private static checkForEquivalence<T>(
+            valueA: T,
+            valueB: T,
+            processedReferences: Map<Object, Map<Object, boolean>>,
+            comparisonOptions?: IEquivalenceComparisonOptions)
+            : boolean {
+
+            const typeOfValueA = typeof valueA;
+            if ((typeOfValueA === "object" || typeOfValueA === "array") && processedReferences.has(valueA)) {
+                const comparisonsForA = processedReferences.get(valueA) as Map<Object, boolean>;
+                if (comparisonsForA.has(valueB)) {
+                    return comparisonsForA.get(valueB) as boolean;
+                }
+            }
 
             comparisonOptions = comparisonOptions || this.defaultClonesComparisonOptions;
             if (valueA === valueB || (valueA === undefined && valueB === undefined) || (valueA === null && valueB === null)) {
@@ -89,12 +128,15 @@ namespace Objs.Comparison {
 
                     }
 
+                    this.storeProcessedEquivalenceComparison(valueA, valueB, true, processedReferences);
                     for (let index = 0; index < keysALength; ++index) {
                         const keyA = keysA[index];
                         if (keysB.indexOf(keyA) < 0) {
+                            this.storeProcessedEquivalenceComparison(valueA, valueB, false, processedReferences);
                             return false;
                         }
-                        if (!this.areEquivalent(valueA[keyA], valueB[keyA], comparisonOptions)) {
+                        if (!this.checkForEquivalence(valueA[keyA], valueB[keyA], processedReferences, comparisonOptions)) {
+                            this.storeProcessedEquivalenceComparison(valueA, valueB, false, processedReferences);
                             return false;
                         }
                     }
@@ -111,8 +153,10 @@ namespace Objs.Comparison {
                         return false;
                     }
 
+                    this.storeProcessedEquivalenceComparison(valueA, valueB, true, processedReferences);
                     for (let index = 0; index < arrayALenght; ++index) {
-                        if (!this.areEquivalent(arrayA[index], arrayB[index], comparisonOptions)) {
+                        if (!this.checkForEquivalence(arrayA[index], arrayB[index], processedReferences, comparisonOptions)) {
+                            this.storeProcessedEquivalenceComparison(valueA, valueB, false, processedReferences);
                             return false;
                         }
                     }
