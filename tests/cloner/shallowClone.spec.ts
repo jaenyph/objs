@@ -70,4 +70,63 @@ describe("Objs.Cloning.Cloner.shallowClone", () => {
         const actual = sut.shallowClone(originalObject);
         expect(actual.nested.shared).toBe(shared);
     });
+
+    it("handles basic object cycles", () =>{
+        const root = {
+            prop : undefined
+        };
+        root.prop = root as any;
+        
+        expect(sut.shallowClone.bind(sut,root)).not.toThrow();
+    });
+
+    it("handles basic array cycles", () =>{
+        const root:Object[] = [];
+        root.push(root);
+        
+        expect(sut.shallowClone.bind(sut,root)).not.toThrow();
+    });
+
+    it("handles nested object cycles", () =>{
+        const root = {
+            nested : {
+                prop : undefined
+            }
+        };
+        root.nested.prop = root as any;
+        
+        expect(sut.shallowClone.bind(sut,root)).not.toThrow();
+    });
+
+    it("handles nested arrays cycles", () =>{
+        const root:Object[] = [];
+        const nested:Object[] = [];
+        nested.push(root);
+        root.push(nested);
+        
+        expect(sut.shallowClone.bind(sut,root)).not.toThrow();
+    });
+
+    it("handles nested objects and arrays cycles", () =>{
+        const root = {
+            nested : {
+                arr : [{prop : undefined}]
+            }
+        };
+        root.nested.arr[0].prop = root as any;
+        
+        expect(sut.shallowClone.bind(sut,root)).not.toThrow();
+    });
+
+    it("handles nested arrays and objects cycles", () =>{
+        const root: Object[] = [];
+        const nested = {
+            prop : {
+                arr : root
+            }
+        };
+        root.push(nested)
+        
+        expect(sut.shallowClone.bind(sut,root)).not.toThrow();
+    });
 });
