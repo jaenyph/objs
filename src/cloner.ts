@@ -7,7 +7,7 @@ namespace Objs.Cloning {
      */
     export class Cloner {
 
-         public static shallowClone<T>(value: T): T {
+        public static shallowClone<T>(value: T): T {
             if (!Objs.Types.isArray(value)) {
                 return this.cloneNonArray(value, false);
             } else {
@@ -26,46 +26,6 @@ namespace Objs.Cloning {
                 }
                 return clone as any as T;
             }
-        }
-
-        private static assignTo<T>(target: T, source: Object): T {
-            const targetKeys = Object.keys(target);
-            const sourceKeys = Object.keys(source);
-            targetKeys.forEach((key) => {
-                if (sourceKeys.indexOf(key) < 0) {
-                    delete target[key];
-                }
-            });
-
-            return Object.assign(target, source);
-        }
-
-        private static ensurekSyncableOrThrow<T>(target: T, source: Object): void {
-            if (!Objs.Types.isDefined(target)) {
-                throw new Error("target is not defined");
-            }
-
-            if (!Objs.Types.isDefined(source)) {
-                throw new Error("source is not defined");
-            }
-
-            if (Objs.Types.isPrimitive(target) || Objs.Types.isPrimitive(source)) {
-                throw new Error("could not act on primitive");
-            }
-
-            if (typeof target !== typeof source) {
-                throw new Error("source and target types must match");
-            }
-        }
-
-        public static shallowCloneTo<T>(target: T, source: Object): T {
-            this.ensurekSyncableOrThrow(target, source);
-            return this.assignTo(target, source);
-        }
-
-        public static deepCloneTo<T>(target: T, source: Object): T {
-            this.ensurekSyncableOrThrow(target, source);
-            return this.assignTo(target, this.deepClone(source));
         }
 
         private static cloneNonArray(value: Object, deepCloning: boolean): any {
@@ -101,17 +61,70 @@ namespace Objs.Cloning {
          * Performs deep cloning of objects
          */
         public static deepClone<T>(value: T): T {
+            //return this.deepCloneStraight(value);
+            const processedReferences = new Map<Object, any>();
+            const clone = this.deepCloneWithCyclesHandling(value, processedReferences);
+            processedReferences.clear();
+            return clone;
+        }
+
+        /** Deep cloning with cycles handling */
+        private static deepCloneWithCyclesHandling<T>(value: T, processedReferences: Map<Object, any>): T {
+            const typeOfValue = typeof value;
+            if ((typeOfValue === "object" || typeOfValue === "array") && processedReferences.has(value)) {
+                return processedReferences.get(value);
+            }
+
             if (!Objs.Types.isArray(value)) {
-                return this.cloneNonArray(value, true);
+                return this.cloneNonArrayWithCyclesHandling(value, true, processedReferences);
             }
             else {
                 const array = value as any as any[];
                 const length = array.length;
-                const clone = new Array(array.length);
+                const clone: any[] = [];
+                processedReferences.set(value, clone);
                 for (let index = 0; index < length; ++index) {
-                    clone[index] = this.deepClone(array[index]);
+                    clone[index] = this.deepCloneWithCyclesHandling(array[index], processedReferences);
                 }
                 return clone as any as T;
+            }
+        }
+
+        private static cloneNonArrayWithCyclesHandling(value: Object, deepCloning: boolean, processedReferences: Map<Object, any>): any {
+            if (Objs.Types.isPrimitive(value)) {
+                switch (typeof value) {
+                    case "string":
+                        return (value !== undefined && value !== null)
+                            ? "" + value
+                            : value;
+                    default:
+                        return value;
+                }
+            }
+            else if (Objs.Types.isFunction(value)) {
+                return value;
+            }
+            else {
+
+                if (processedReferences.has(value)) {
+                    return processedReferences.get(value);
+                }
+
+                if (Objs.Types.isDate(value)) {
+                    const clone = new Date((value as Date).getTime());
+                    processedReferences.set(value, clone);
+                    return clone;
+                }
+
+                // this is a complex type:
+                const clone = Object.create(value);
+                processedReferences.set(value, clone);
+                for (const propertyName in value) {
+                    if (value.hasOwnProperty(propertyName)) {
+                        clone[propertyName] = (deepCloning ? this.deepCloneWithCyclesHandling(value[propertyName], processedReferences) : value[propertyName]);
+                    }
+                }
+                return clone;
             }
         }
     }
