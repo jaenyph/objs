@@ -1,0 +1,19 @@
+# ignore node modules
+node_modules
+
+# ignore typescript build result
+build
+
+# ignore typescript definitions for tests
+typings/tests
+
+# ignore vs code configuration
+.vscode
+
+# ignore any root log files
+*.log
+
+# ignore npm installed typings
+typings.json
+typings/index.d.ts
+typings/globals
