@@ -2,7 +2,7 @@
 /// <reference path="../../src/cloner.ts" />
 describe("Objs.Cloning.Cloner.shallowClone", () => {
     const sut = Objs.Cloning.Cloner;
-    
+
     it("returns new array", () => {
         const originalArray: any[] = [];
         const actual = sut.shallowClone(originalArray);
@@ -54,7 +54,7 @@ describe("Objs.Cloning.Cloner.shallowClone", () => {
     it("does not clone object properties", () => {
         const shared = {};
         const originalObject = {
-            "shared" : shared
+            "shared": shared
         };
         const actual = sut.shallowClone(originalObject);
         expect(actual.shared).toBe(shared);
@@ -63,70 +63,100 @@ describe("Objs.Cloning.Cloner.shallowClone", () => {
     it("does not clone object nested properties", () => {
         const shared = {};
         const originalObject = {
-            "nested" : {
-                "shared" : shared
+            "nested": {
+                "shared": shared
             }
         };
         const actual = sut.shallowClone(originalObject);
         expect(actual.nested.shared).toBe(shared);
     });
 
-    it("handles basic object cycles", () =>{
+    it("handles basic object cycles", () => {
         const root = {
-            prop : undefined
+            prop: undefined
         };
         root.prop = root as any;
-        
-        expect(sut.shallowClone.bind(sut,root)).not.toThrow();
+
+        expect(sut.shallowClone.bind(sut, root)).not.toThrow();
     });
 
-    it("handles basic array cycles", () =>{
-        const root:Object[] = [];
+    it("handles basic array cycles", () => {
+        const root: Object[] = [];
         root.push(root);
-        
-        expect(sut.shallowClone.bind(sut,root)).not.toThrow();
+
+        expect(sut.shallowClone.bind(sut, root)).not.toThrow();
     });
 
-    it("handles nested object cycles", () =>{
+    it("handles nested object cycles", () => {
         const root = {
-            nested : {
-                prop : undefined
+            nested: {
+                prop: undefined
             }
         };
         root.nested.prop = root as any;
-        
-        expect(sut.shallowClone.bind(sut,root)).not.toThrow();
+
+        expect(sut.shallowClone.bind(sut, root)).not.toThrow();
     });
 
-    it("handles nested arrays cycles", () =>{
-        const root:Object[] = [];
-        const nested:Object[] = [];
+    it("handles nested arrays cycles", () => {
+        const root: Object[] = [];
+        const nested: Object[] = [];
         nested.push(root);
         root.push(nested);
-        
-        expect(sut.shallowClone.bind(sut,root)).not.toThrow();
+
+        expect(sut.shallowClone.bind(sut, root)).not.toThrow();
     });
 
-    it("handles nested objects and arrays cycles", () =>{
+    it("handles nested objects and arrays cycles", () => {
         const root = {
-            nested : {
-                arr : [{prop : undefined}]
+            nested: {
+                arr: [{ prop: undefined }]
             }
         };
         root.nested.arr[0].prop = root as any;
-        
-        expect(sut.shallowClone.bind(sut,root)).not.toThrow();
+
+        expect(sut.shallowClone.bind(sut, root)).not.toThrow();
     });
 
-    it("handles nested arrays and objects cycles", () =>{
+    it("handles nested arrays and objects cycles", () => {
         const root: Object[] = [];
         const nested = {
-            prop : {
-                arr : root
+            prop: {
+                arr: root
             }
         };
         root.push(nested)
-        
-        expect(sut.shallowClone.bind(sut,root)).not.toThrow();
+
+        expect(sut.shallowClone.bind(sut, root)).not.toThrow();
+    });
+
+    it("cope with instanceof at one level", () => {
+        // arrange
+        class DummyObject {
+        }
+        const instance = new DummyObject();
+
+        // act
+        const actual = sut.deepClone(instance);
+
+        // assert
+        expect(actual instanceof DummyObject).toBe(true);
+    });
+
+    it("cope with instanceof at multiple levels", () => {
+        // arrange
+        class DummyBaseObject {
+        }
+        class DummyIntermediateObject extends DummyBaseObject {
+        }
+        class DummyObject extends DummyIntermediateObject {
+        }
+        const instance = new DummyObject();
+
+        // act
+        const actual = sut.deepClone(instance);
+
+        // assert
+        expect(actual instanceof DummyBaseObject).toBe(true);
     });
 });
