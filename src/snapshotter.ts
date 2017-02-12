@@ -132,6 +132,17 @@ namespace Objs.Snapshots {
         }
 
         /**
+         * Whether or not the given value has any snapshots
+         * @param value : The object to check
+         * @throw "Error" if the given value is not defined or not a complex object (i.e. primitive type);
+         */
+        public has(value: Object): boolean {
+            this.ensureObjectDefinedOrThrow(value);
+            const history = this.getHistory(value);
+            return (history === undefined) ? false : history.length > 0;
+        }
+
+        /**
          * Whether or not the given value has changed compared to its last snapshot
          * @param value : The object to check
          * @throw "Error" if the given value is not defined or not a complex object (i.e. primitive type);
