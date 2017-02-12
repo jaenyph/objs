@@ -100,18 +100,24 @@ namespace Objs.Snapshots {
             }
         }
 
-        private ensureObjectDefinedOrThrow(value: Object): void {
+        private getObjectDefinedErrorMessage(value: Object): string {
             if (!Objs.Types.isDefined(value)) {
-                throw new Error("value is not defined");
+                return "value is not defined";
             }
             if (this.configuration.identificationKind === Objs.Snapshots.IdentificationKind.Id) {
                 if (!value.hasOwnProperty(this.getCasedIdPropertyName())) {
-                    throw new Error(`value does not defined an '${this.getCasedIdPropertyName()}' property`);
+                    return `value does not defined an '${this.getCasedIdPropertyName()}' property`;
                 }
-                value.isPrototypeOf
             }
             if (Objs.Types.isPrimitive(value)) {
-                throw new Error("could not act on a primitive value");
+                return "could not act on a primitive value";
+            }
+            return "";
+        }
+        private ensureObjectDefinedOrThrow(value: Object): void {
+            const error = this.getObjectDefinedErrorMessage(value);
+            if (error) {
+                throw new Error(error);
             }
         }
 
@@ -132,6 +138,29 @@ namespace Objs.Snapshots {
         }
 
         /**
+         * Whether or not the given value has any snapshots
+         * @param value : The object to check
+         */
+        public has(value: Object): boolean {
+            const error = this.getObjectDefinedErrorMessage(value);
+            if (error !== "") {
+                return false;
+            }
+            const history = this.getHistory(value);
+            return (history === undefined) ? false : history.length > 0;
+        }
+
+        /** Get the number of snapshots stored for the given value */
+        public count(value: Object): number {
+            const error = this.getObjectDefinedErrorMessage(value);
+            if (error !== "") {
+                return 0;
+            }
+            const history = this.getHistory(value);
+            return (history === undefined) ? 0 : history.length;
+        }
+
+        /**
          * Whether or not the given value has changed compared to its last snapshot
          * @param value : The object to check
          * @throw "Error" if the given value is not defined or not a complex object (i.e. primitive type);
@@ -139,8 +168,13 @@ namespace Objs.Snapshots {
         public isChanged(value: Object, comparisonOptions?: Objs.Comparison.IEquivalenceComparisonOptions): boolean {
 
             this.ensureObjectDefinedOrThrow(value);
+            const history = this.getHistoryOrThrow(value);
+            if (history.length === 0) {
+                throw new Error("value has no snapshots");
+            }
+            const last = history[0];
 
-            return !Objs.Comparison.Comparer.areEquivalent(value, this.getHistoryOrThrow(value)[0], comparisonOptions);
+            return !Objs.Comparison.Comparer.areEquivalent(value, last, comparisonOptions);
         }
 
         private clone<T>(value: T): T {
@@ -149,6 +183,17 @@ namespace Objs.Snapshots {
                     return Objs.Cloning.Cloner.deepClone(value);
                 case SnapshotKind.ShallowClone:
                     return Objs.Cloning.Cloner.shallowClone(value);
+                default:
+                    throw new Error("unhandled snapshot kind");
+            }
+        }
+
+        private cloneTo<T>(source: T, target: Object): T {
+            switch (this.configuration.snapshotKind) {
+                case SnapshotKind.DeepClone:
+                    return Objs.Cloning.Cloner.deepCloneTo(source, target);
+                case SnapshotKind.ShallowClone:
+                    return Objs.Cloning.Cloner.shallowCloneTo(source, target);
                 default:
                     throw new Error("unhandled snapshot kind");
             }
@@ -231,7 +276,7 @@ namespace Objs.Snapshots {
                 throw new Error("value could not be more reverted");
             }
 
-            return history.shift() as T;
+            return this.cloneTo(history.shift() as T, value);
         }
     }
 }

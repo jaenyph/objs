@@ -94,14 +94,14 @@ describe("Objs.Snapshots.Snapshotter.isChanged", () => {
         withReferenceTracking();
         const valueToCheck = 3.14;
         const sut = getSut();
-        expect(sut.clear.bind(sut, valueToCheck)).toThrowError(primitiveErrorMessage);
+        expect(sut.isChanged.bind(sut, valueToCheck)).toThrowError(primitiveErrorMessage);
     });
 
     it("throws when trying to check a number in id tracking mode", () => {
         withIdTracking();
         const valueToCheck = 3.14;
         const sut = getSut();
-        expect(sut.clear.bind(sut, valueToCheck)).toThrowError(missingIdErrorMessage);
+        expect(sut.isChanged.bind(sut, valueToCheck)).toThrowError(missingIdErrorMessage);
     });
 
     it("throws when trying to check a string in reference tracking mode", () => {
@@ -341,5 +341,17 @@ describe("Objs.Snapshots.Snapshotter.isChanged", () => {
 
         // assert
         expect(comparisonOptionsUsed).toBe(true);
+    });
+
+    it("throws when completely reverted in reference tracking mode", () => {
+        // arrange
+        withReferenceTracking();
+        const trackedObject = { "prop": true };
+        const sut = getSut();
+        sut.save(trackedObject);
+        sut.revert(trackedObject);
+
+        // act / assert
+        expect(sut.isChanged.bind(sut, trackedObject)).toThrowError(notTrackedErrorMessage);
     });
 });

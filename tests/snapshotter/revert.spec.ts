@@ -141,12 +141,13 @@ describe("Objs.Snapshots.Snapshotter.revert", () => {
         const sut = getSut();
         sut.save(tracked);
         tracked.prop = "new";
+        const last = Objs.Cloning.Cloner.deepClone(tracked);
 
         // act
-        const actual = sut.revert(tracked);
+        sut.revert(tracked);
 
         // assert
-        expect(actual).not.toEqual(tracked);
+        expect(tracked).not.toEqual(last);
     });
 
     it("is reverted to previous state in id tracking mode with same reference", () => {
@@ -159,12 +160,13 @@ describe("Objs.Snapshots.Snapshotter.revert", () => {
         const sut = getSut();
         sut.save(tracked);
         tracked.prop = "new";
+        const last = Objs.Cloning.Cloner.deepClone(tracked);
 
         // act
-        const actual = sut.revert(tracked);
+        sut.revert(tracked);
 
         // assert
-        expect(actual).not.toEqual(tracked);
+        expect(tracked).not.toEqual(last);
     });
 
     it("is reverted to previous state in id tracking mode with another reference", () => {
@@ -190,7 +192,7 @@ describe("Objs.Snapshots.Snapshotter.revert", () => {
         sutConfiguration.historyDepth = 3;
         const sut = getSut();
         const trackedObject = {
-            "prop" : "old"
+            "prop": "old"
         };
         sut.save(trackedObject);
         trackedObject.prop = "new";
@@ -202,5 +204,22 @@ describe("Objs.Snapshots.Snapshotter.revert", () => {
         expect(sut.revert(trackedObject).prop).toEqual("last");
         expect(sut.revert(trackedObject).prop).toEqual("new");
         expect(sut.revert(trackedObject).prop).toEqual("old");
+    });
+
+    it("modifies the given value reference to become the reverted value", () => {
+        // arrange
+        withReferenceTracking();
+        const sut = getSut();
+        const trackedObject = {
+            "prop": "old"
+        };
+        sut.save(trackedObject);
+        trackedObject.prop = "new";
+
+        // act
+        sut.revert(trackedObject);
+
+        // assert
+        expect(trackedObject.prop).toEqual("old");
     });
 });
