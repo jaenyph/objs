@@ -14,7 +14,7 @@ namespace Objs.Cloning {
             if (!Objs.Types.isDefined(target)) {
                 throw new Error("target is not defined");
             }
-            if (!Objs.Types.areSameTypes(source, target)){
+            if (!Objs.Types.areSameTypes(source, target)) {
                 throw new Error("source and target types varies");
             }
             if (Objs.Types.isPrimitive(source)) {
@@ -23,8 +23,8 @@ namespace Objs.Cloning {
             if (Objs.Types.isPrimitive(target)) {
                 throw new Error("could not act on a primitive value");
             }
-            if(source === target){
-                throw new  Error("could not act on same instances");
+            if (source === target) {
+                throw new Error("could not act on same instances");
             }
 
             const sourceKeys = Object.keys(source);
@@ -45,16 +45,16 @@ namespace Objs.Cloning {
          * */
         public static shallowCloneTo<T>(source: T, target: Object): T {
             this.checkAndPrepareTargetForCloning(source, target);
-            
-            if(!Objs.Types.isArray(target)){
+
+            if (!Objs.Types.isArray(target)) {
                 return Object.assign(target, this.shallowClone(source));
             }
-            else{
+            else {
                 const targetArray = target as any as any[];
                 targetArray.splice(0, targetArray.length);
                 const sourceArray = source as any as any[];
                 const sourceArrayLength = sourceArray.length;
-                for(let index = 0; index < sourceArrayLength; ++index){
+                for (let index = 0; index < sourceArrayLength; ++index) {
                     targetArray[index] = this.shallowClone(sourceArray[index]);
                 }
                 return target as T;
@@ -62,14 +62,27 @@ namespace Objs.Cloning {
         }
 
         /**
-         * Synchronize the given target with the given source
+         * Synchronize the given target with the given source by performing deep cloning
          * @param source - the object to replicate to the target
          * @param target - the object to be modified to become a clone of the source
          * @returns the synchronized target
          * */
         public static deepCloneTo<T>(source: T, target: Object): T {
             this.checkAndPrepareTargetForCloning(source, target);
-            return Object.assign(target, this.deepClone(source));
+
+            if (!Objs.Types.isArray(target)) {
+                return Object.assign(target, this.deepClone(source));
+            }
+            else {
+                const targetArray = target as any as any[];
+                targetArray.splice(0, targetArray.length);
+                const sourceArray = source as any as any[];
+                const sourceArrayLength = sourceArray.length;
+                for (let index = 0; index < sourceArrayLength; ++index) {
+                    targetArray[index] = this.deepClone(sourceArray[index]);
+                }
+                return target as T;
+            }
         }
 
         /** Performs a shallow clone of the given object */
