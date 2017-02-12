@@ -1,9 +1,6 @@
 /// <reference path="../../typings/globals/jasmine/index.d.ts" />
 /// <reference path="../../src/snapshotter.ts" />
 describe("Objs.Snapshots.Snapshotter.has", () => {
-    const notDefinedErrorMessage = "value is not defined";
-    const primitiveErrorMessage = "could not act on a primitive value";
-    const missingIdErrorMessage = "value does not defined an 'id' property";
     let sutConfiguration: Objs.Snapshots.ISnapshotterConfiguration;
 
     const getSut = () => {
@@ -47,74 +44,74 @@ describe("Objs.Snapshots.Snapshotter.has", () => {
         expect(sut.has.bind(sut, { "id": 1 })).not.toThrow();
     });
 
-    it("throws when trying to check null in reference tracking mode", () => {
+    it("does not throw when trying to check null in reference tracking mode", () => {
         withReferenceTracking();
         const valueToSave = null;
         const sut = getSut();
-        expect(sut.has.bind(sut, valueToSave)).toThrowError(notDefinedErrorMessage);
+        expect(sut.has.bind(sut, valueToSave)).not.toThrow();
     });
 
-    it("throws when trying to check null in id tracking mode", () => {
+    it("does not throw when trying to check null in id tracking mode", () => {
         withIdTracking();
         const valueToSave = null;
         const sut = getSut();
-        expect(sut.has.bind(sut, valueToSave)).toThrowError(notDefinedErrorMessage);
+        expect(sut.has.bind(sut, valueToSave)).not.toThrow();
     });
 
-    it("throws when trying to check undefined in reference tracking mode", () => {
+    it("does not throw when trying to check undefined in reference tracking mode", () => {
         withReferenceTracking();
         const valueToSave = undefined;
         const sut = getSut();
-        expect(sut.has.bind(sut, valueToSave)).toThrowError(notDefinedErrorMessage);
+        expect(sut.has.bind(sut, valueToSave)).not.toThrow();
     });
 
-    it("throws when trying to check undefined in id tracking tracking mode", () => {
+    it("does not throw when trying to check undefined in id tracking tracking mode", () => {
         withIdTracking();
         const valueToSave = undefined;
         const sut = getSut();
-        expect(sut.has.bind(sut, valueToSave)).toThrowError(notDefinedErrorMessage);
+        expect(sut.has.bind(sut, valueToSave)).not.toThrow();
     });
 
-    it("throws when trying to check a boolean in reference tracking mode", () => {
+    it("does not throw when trying to check a boolean in reference tracking mode", () => {
         withReferenceTracking();
         const valueToCheck = true;
         const sut = getSut();
-        expect(sut.has.bind(sut, valueToCheck)).toThrowError(primitiveErrorMessage);
+        expect(sut.has.bind(sut, valueToCheck)).not.toThrow();
     });
 
-    it("throws when trying to check a boolean in id tracking mode", () => {
+    it("does not throw when trying to check a boolean in id tracking mode", () => {
         withIdTracking();
         const valueToCheck = true;
         const sut = getSut();
-        expect(sut.has.bind(sut, valueToCheck)).toThrowError(missingIdErrorMessage);
+        expect(sut.has.bind(sut, valueToCheck)).not.toThrow();
     });
 
-    it("throws when trying to check a number in reference tracking mode", () => {
+    it("does not throw when trying to check a number in reference tracking mode", () => {
         withReferenceTracking();
         const valueToCheck = 3.14;
         const sut = getSut();
-        expect(sut.has.bind(sut, valueToCheck)).toThrowError(primitiveErrorMessage);
+        expect(sut.has.bind(sut, valueToCheck)).not.toThrow();
     });
 
-    it("throws when trying to check a number in id tracking mode", () => {
+    it("does not throw when trying to check a number in id tracking mode", () => {
         withIdTracking();
         const valueToCheck = 3.14;
         const sut = getSut();
-        expect(sut.has.bind(sut, valueToCheck)).toThrowError(missingIdErrorMessage);
+        expect(sut.has.bind(sut, valueToCheck)).not.toThrow();
     });
 
-    it("throws when trying to check a string in reference tracking mode", () => {
+    it("does not throw when trying to check a string in reference tracking mode", () => {
         withReferenceTracking();
         const valueToCheck = "abc";
         const sut = getSut();
-        expect(sut.has.bind(sut, valueToCheck)).toThrowError(primitiveErrorMessage);
+        expect(sut.has.bind(sut, valueToCheck)).not.toThrow();
     });
 
-    it("throws when trying to check a string in id tracking mode", () => {
+    it("does not throw when trying to check a string in id tracking mode", () => {
         withIdTracking();
         const valueToCheck = "abc";
         const sut = getSut();
-        expect(sut.has.bind(sut, valueToCheck)).toThrowError(missingIdErrorMessage);
+        expect(sut.has.bind(sut, valueToCheck)).not.toThrow();
     });
 
     it("does not throws when trying to check a missing date in reference tracking mode", () => {
@@ -132,11 +129,11 @@ describe("Objs.Snapshots.Snapshotter.has", () => {
         expect(sut.has.bind(sut, valueToCheck)).not.toThrow();
     });
 
-    it("throws when trying to check a date in id tracking mode", () => {
+    it("does not throw when trying to check a date in id tracking mode", () => {
         withIdTracking();
         const valueToCheck = new Date();
         const sut = getSut();
-        expect(sut.has.bind(sut, valueToCheck)).toThrowError(missingIdErrorMessage);
+        expect(sut.has.bind(sut, valueToCheck)).not.toThrow();
     });
 
     it("returns true if tracked object has one shapshot in reference tracking mode", () => {
