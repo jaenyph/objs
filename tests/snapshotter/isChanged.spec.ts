@@ -342,4 +342,16 @@ describe("Objs.Snapshots.Snapshotter.isChanged", () => {
         // assert
         expect(comparisonOptionsUsed).toBe(true);
     });
+
+    it("throws when completely reverted in reference tracking mode", () => {
+        // arrange
+        withReferenceTracking();
+        const trackedObject = { "prop": true };
+        const sut = getSut();
+        sut.save(trackedObject);
+        sut.revert(trackedObject);
+
+        // act / assert
+        expect(sut.isChanged.bind(sut, trackedObject)).toThrowError(notTrackedErrorMessage);
+    });
 });
