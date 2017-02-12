@@ -165,6 +165,17 @@ namespace Objs.Snapshots {
             }
         }
 
+        private cloneTo<T>(source: T, target: Object): T {
+            switch (this.configuration.snapshotKind) {
+                case SnapshotKind.DeepClone:
+                    return Objs.Cloning.Cloner.deepCloneTo(source, target);
+                case SnapshotKind.ShallowClone:
+                    return Objs.Cloning.Cloner.shallowCloneTo(source, target);
+                default:
+                    throw new Error("unhandled snapshot kind");
+            }
+        }
+
         /**
          * Save the given value to a new snapshot
          * @param value : The object to save
@@ -242,7 +253,7 @@ namespace Objs.Snapshots {
                 throw new Error("value could not be more reverted");
             }
 
-            return history.shift() as T;
+            return this.cloneTo(history.shift() as T, value);
         }
     }
 }
