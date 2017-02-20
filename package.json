@@ -6,7 +6,7 @@
     "build": "tsc",
     "build-single": "cp -f tsconfig.json src && tsc --declaration --module amd --project src --outFile build/ob.js && rm -f src/tsconfig.json && npm run uglify-build-single",
     "watch": "tsc -w",
-    "uglify-build-single": "uglifyjs --compress 'sequences,properties,dead_code,drop_debugger,unsafe_comps,conditionals,comparisons,evaluate,booleans,loops,unused,if_return,join_vars,cascade,reduce_vars,warnings' --mangle --reserver 'require,exports' --in-source-map build/ob.js.map  --source-map-root --source-map-url ob.min.js.map --source-map build/ob.min.js.map --output  build/ob.min.js -- build/ob.js",
+    "uglify-build-single": "uglifyjs --compress sequences,properties,dead_code,drop_debugger,unsafe_comps,conditionals,comparisons,evaluate,booleans,loops,unused,if_return,join_vars,cascade,reduce_vars,warnings --mangle --reserver 'require,exports --in-source-map build/ob.js.map  --source-map-root --source-map-url ob.min.js.map --source-map build/ob.min.js.map --output  build/ob.min.js -- build/ob.js",
     "test": "npm run build && karma start",
     "test-once": "npm run build && karma start --single-run",
     "karma": "karma",
