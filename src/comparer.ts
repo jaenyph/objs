@@ -71,6 +71,10 @@ namespace Objs.Comparison {
                     return false;
                 }
 
+                if (valueB === null || valueB === undefined) {
+                    return false;
+                }
+
                 if (!Objs.Types.areSameTypes(valueA, valueB)) {
                     return false;
                 }

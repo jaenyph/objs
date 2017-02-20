@@ -86,46 +86,75 @@ describe("Objs.Comparison.Comparer.areEquivalent", () => {
         expect(actual).toBe(false);
     });
 
+    it("return false when comparing left object value with null", () => {
+        const a = { prop: {} };
+        const b = { prop: null };
+        const actual = sut.areEquivalent(a, b as any);
+        expect(actual).toBe(false);
+    });
+
+    it("return false when comparing left object value with undefined", () => {
+        const a = { prop: {} };
+        const b = { prop: undefined };
+        const actual = sut.areEquivalent(a, b as any);
+        expect(actual).toBe(false);
+    });
+
+    it("return false when comparing right object value with null", () => {
+
+        const a = { prop: null };
+        const b = { prop: {} };
+        const actual = sut.areEquivalent(a, b as any);
+        expect(actual).toBe(false);
+    });
+
+    it("return false when comparing left object value with undefined", () => {
+        const a = { prop: undefined };
+        const b = { prop: {} };
+        const actual = sut.areEquivalent(a, b as any);
+        expect(actual).toBe(false);
+    });
+
     it("calls isPropertyExcluded when comparison options defines it", () => {
         let isPropertyExcludedCounter = 0;
         const options: Objs.Comparison.IEquivalenceComparisonOptions = {
-            isPropertyExcluded : () => { ++isPropertyExcludedCounter; return true;}
+            isPropertyExcluded: () => { ++isPropertyExcludedCounter; return true; }
         };
-        sut.areEquivalent({ "prop": "a" }, {"prop" : "b"} , options);
+        sut.areEquivalent({ "prop": "a" }, { "prop": "b" }, options);
         expect(isPropertyExcludedCounter).toBeGreaterThan(0);
     });
 
     it("uses isPropertyExcluded to exclude properties when comparison options defines it", () => {
         const options: Objs.Comparison.IEquivalenceComparisonOptions = {
-            isPropertyExcluded : (key) => { return key[0] === "_" }
+            isPropertyExcluded: (key) => { return key[0] === "_" }
         };
-        const actual = sut.areEquivalent({ "prop": "same", "_discard" : true }, {"prop" : "same", "_discard" : false} , options);
+        const actual = sut.areEquivalent({ "prop": "same", "_discard": true }, { "prop": "same", "_discard": false }, options);
         expect(actual).toBe(true);
     });
 
     it("calls isPropertyExcluded, with property name and value, when comparison options defines it", () => {
         const options: Objs.Comparison.IEquivalenceComparisonOptions = {
-            isPropertyExcluded : (key, value) => { 
-                switch(key){
+            isPropertyExcluded: (key, value) => {
+                switch (key) {
                     case "str":
-                    expect(value).toBe("abc");
-                    break;
+                        expect(value).toBe("abc");
+                        break;
                     case "fnc":
-                    expect(typeof value).toBe("function");
-                    break;
+                        expect(typeof value).toBe("function");
+                        break;
                 }
                 return true;
             }
         };
-        sut.areEquivalent({ "str": "abc", "fnc" : () => {} }, {"str": "abc", "fnc" : () => {}} , options);
+        sut.areEquivalent({ "str": "abc", "fnc": () => { } }, { "str": "abc", "fnc": () => { } }, options);
     });
 
     it("returns true for clone objects with cycles", () => {
         // arrange
         const original = {
-            prop : {
-                root : undefined,
-                arr : []
+            prop: {
+                root: undefined,
+                arr: []
             }
         };
         original.prop.root = original as any;
@@ -144,9 +173,9 @@ describe("Objs.Comparison.Comparer.areEquivalent", () => {
     it("returns false for non clone objects with cycles", () => {
         // arrange
         const original = {
-            prop : {
-                root : undefined,
-                arr : []
+            prop: {
+                root: undefined,
+                arr: []
             }
         };
         original.prop.root = original as any;
@@ -165,7 +194,7 @@ describe("Objs.Comparison.Comparer.areEquivalent", () => {
 
     it("returns true for clone arrays with cycles", () => {
         // arrange
-        const original = [{root:undefined, prop:{arr:[]}}];
+        const original = [{ root: undefined, prop: { arr: [] } }];
         original[0].root = original as any;
         original[0].prop.arr.push(original as never);
         original[0].prop.arr.push(original[0].prop as never);
@@ -181,7 +210,7 @@ describe("Objs.Comparison.Comparer.areEquivalent", () => {
 
     it("returns false for non clone aarrays with cycles", () => {
         // arrange
-        const original = [{root:undefined, prop:{arr:[]}}];
+        const original = [{ root: undefined, prop: { arr: [] } }];
         original[0].root = original as any;
         original[0].prop.arr.push(original as never);
         original[0].prop.arr.push(original[0].prop as never);
