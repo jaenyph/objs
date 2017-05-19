@@ -1,5 +1,5 @@
 {
-  "name": "ob.js",
+  "name": "ob.js.npm",
   "version": "0.0.4",
   "description": "A typescript library for managing javascript objects",
   "main": "./builds/latest/ob.js",
