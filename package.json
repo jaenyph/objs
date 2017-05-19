@@ -1,7 +1,9 @@
 {
   "name": "ob.js",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "description": "A typescript library for managing javascript objects",
+  "main": "./builds/latest/ob.js",
+  "types": "./builds/latest/ob.d.ts",
   "scripts": {
     "build": "tsc",
     "build-single": "cp -f tsconfig.json src && tsc --declaration --module amd --project src --outFile build/ob.js && rm -f src/tsconfig.json && npm run uglify-build-single",
