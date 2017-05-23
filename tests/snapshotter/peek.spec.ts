@@ -183,7 +183,7 @@ describe("Objs.Snapshots.Snapshotter.peek", () => {
         const actual = sut.peek({ "id": 1 });
 
         // assert
-        expect<any>(actual).toEqual({ "id": 1, "prop": "old" });
+        expect(actual as any).toEqual({ "id": 1, "prop": "old" });
     });
 
     it("can peek multiple times in reference tracking mode", () => {

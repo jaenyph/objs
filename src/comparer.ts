@@ -53,7 +53,7 @@ namespace Objs.Comparison {
             comparisonOptions?: IEquivalenceComparisonOptions)
             : boolean {
 
-            const typeOfValueA = typeof valueA;
+            const typeOfValueA : string = typeof valueA;
             if ((typeOfValueA === "object" || typeOfValueA === "array") && processedReferences.has(valueA)) {
                 const comparisonsForA = processedReferences.get(valueA) as Map<Object, boolean>;
                 if (comparisonsForA.has(valueB)) {

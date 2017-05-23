@@ -147,7 +147,7 @@ namespace Objs.Cloning {
 
         /** Deep cloning with cycles handling */
         private static deepCloneWithCyclesHandling<T>(value: T, processedReferences: Map<Object, any>): T {
-            const typeOfValue = typeof value;
+            const typeOfValue : string = typeof value;
             if ((typeOfValue === "object" || typeOfValue === "array") && processedReferences.has(value)) {
                 return processedReferences.get(value);
             }
