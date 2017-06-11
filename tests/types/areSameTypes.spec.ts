@@ -1,7 +1,8 @@
 /// <reference path="../../typings/globals/jasmine/index.d.ts" />
-/// <reference path="../../src/types.ts" />
+import { Types } from "../../src/types";
+
 describe("Objs.Types.areSameTypes", () => {
-    const sut = Objs.Types;
+    const sut = Types;
 
     it("returns true if both boolean", () => {
         const actual = sut.areSameTypes(true, false);

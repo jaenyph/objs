@@ -1,39 +1,46 @@
 /// <reference path="../../typings/globals/jasmine/index.d.ts" />
-/// <reference path="../../src/snapshotter.ts" />
-describe("Objs.Snapshots.Snapshotter.isChanged", () => {
+import {
+    Snapshotter,
+    ISnapshotterConfiguration,
+    SnapshotKind,
+    PropertyNameCasingKind,
+    IdentificationKind
+} from "../../src/snapshots/snapshotter";
+
+describe("Snapshotter.isChanged", () => {
     const notDefinedErrorMessage = "value is not defined";
     const primitiveErrorMessage = "could not act on a primitive value";
     const missingIdErrorMessage = "value does not defined an 'id' property";
     const notTrackedErrorMessage = "value has no snapshots";
-    let sutConfiguration: Objs.Snapshots.ISnapshotterConfiguration;
+    let sutConfiguration: ISnapshotterConfiguration;
 
     const getSut = () => {
         if (sutConfiguration === undefined) {
             throw new Error("sut configuration not set");
         }
-        return new Objs.Snapshots.Snapshotter(sutConfiguration);
+        return new Snapshotter(sutConfiguration);
     };
 
     const withReferenceTracking = () => {
         sutConfiguration = {
             historyDepth: 1,
-            snapshotKind: Objs.Snapshots.SnapshotKind.DeepClone,
-            propertyNameCasingKind: Objs.Snapshots.PropertyNameCasingKind.LowerCamelCase,
-            identificationKind: Objs.Snapshots.IdentificationKind.Reference
+            snapshotKind: SnapshotKind.DeepClone,
+            propertyNameCasingKind: PropertyNameCasingKind.LowerCamelCase,
+            identificationKind: IdentificationKind.Reference
         };
     }
 
     const withIdTracking = () => {
         sutConfiguration = {
             historyDepth: 1,
-            snapshotKind: Objs.Snapshots.SnapshotKind.DeepClone,
-            propertyNameCasingKind: Objs.Snapshots.PropertyNameCasingKind.LowerCamelCase,
-            identificationKind: Objs.Snapshots.IdentificationKind.Id
+            snapshotKind: SnapshotKind.DeepClone,
+            propertyNameCasingKind: PropertyNameCasingKind.LowerCamelCase,
+            identificationKind: IdentificationKind.Id
         };
     }
 
     beforeEach(() => {
-        sutConfiguration = undefined as any as Objs.Snapshots.ISnapshotterConfiguration;
+        sutConfiguration = undefined as any as ISnapshotterConfiguration;
     });
 
     it("throw when trying to check an untracked object in reference tracking mode", () => {

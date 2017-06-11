@@ -5,7 +5,7 @@
     "experimentalDecorators": false,
     "forceConsistentCasingInFileNames": true,
     "lib": ["es2016", "dom"],
-    "module": "commonjs",
+    "module": "es2015",
     "moduleResolution": "node",
     "noEmitOnError": true,
     "noImplicitAny": true,

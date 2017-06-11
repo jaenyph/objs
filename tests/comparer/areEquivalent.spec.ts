@@ -1,7 +1,9 @@
 /// <reference path="../../typings/globals/jasmine/index.d.ts" />
-/// <reference path="../../src/comparer.ts" />
-describe("Objs.Comparison.Comparer.areEquivalent", () => {
-    const sut = Objs.Comparison.Comparer;
+import { Comparer, IEquivalenceComparisonOptions } from "../../src/comparison/comparer";
+import { Cloner } from "../../src/cloning/cloner";
+
+describe("Comparer.areEquivalent", () => {
+    const sut = Comparer;
 
     it("return true for two equal booleans", () => {
         const actual = sut.areEquivalent(true, true);
@@ -55,7 +57,7 @@ describe("Objs.Comparison.Comparer.areEquivalent", () => {
     });
 
     it("return true when ignoring missing undefined properties in first object", () => {
-        const options: Objs.Comparison.IEquivalenceComparisonOptions = {
+        const options: IEquivalenceComparisonOptions = {
             ignoreMissingPropertyWhenUndefined: true
         };
         const actual = sut.areEquivalent({} as any, { "missing": undefined }, options);
@@ -63,7 +65,7 @@ describe("Objs.Comparison.Comparer.areEquivalent", () => {
     });
 
     it("return false when not ignoring missing undefined properties in first object", () => {
-        const options: Objs.Comparison.IEquivalenceComparisonOptions = {
+        const options: IEquivalenceComparisonOptions = {
             ignoreMissingPropertyWhenUndefined: false
         };
         const actual = sut.areEquivalent({} as any, { "missing": undefined }, options);
@@ -71,7 +73,7 @@ describe("Objs.Comparison.Comparer.areEquivalent", () => {
     });
 
     it("return true when ignoring missing undefined properties in second object", () => {
-        const options: Objs.Comparison.IEquivalenceComparisonOptions = {
+        const options: IEquivalenceComparisonOptions = {
             ignoreMissingPropertyWhenUndefined: true
         };
         const actual = sut.areEquivalent({ "missing": undefined }, {} as any, options);
@@ -79,7 +81,7 @@ describe("Objs.Comparison.Comparer.areEquivalent", () => {
     });
 
     it("return false when not ignoring missing undefined properties in second object", () => {
-        const options: Objs.Comparison.IEquivalenceComparisonOptions = {
+        const options: IEquivalenceComparisonOptions = {
             ignoreMissingPropertyWhenUndefined: false
         };
         const actual = sut.areEquivalent({ "missing": undefined }, {} as any, options);
@@ -117,7 +119,7 @@ describe("Objs.Comparison.Comparer.areEquivalent", () => {
 
     it("calls isPropertyExcluded when comparison options defines it", () => {
         let isPropertyExcludedCounter = 0;
-        const options: Objs.Comparison.IEquivalenceComparisonOptions = {
+        const options: IEquivalenceComparisonOptions = {
             isPropertyExcluded: () => { ++isPropertyExcludedCounter; return true; }
         };
         sut.areEquivalent({ "prop": "a" }, { "prop": "b" }, options);
@@ -125,7 +127,7 @@ describe("Objs.Comparison.Comparer.areEquivalent", () => {
     });
 
     it("uses isPropertyExcluded to exclude properties when comparison options defines it", () => {
-        const options: Objs.Comparison.IEquivalenceComparisonOptions = {
+        const options: IEquivalenceComparisonOptions = {
             isPropertyExcluded: (key) => { return key[0] === "_" }
         };
         const actual = sut.areEquivalent({ "prop": "same", "_discard": true }, { "prop": "same", "_discard": false }, options);
@@ -133,7 +135,7 @@ describe("Objs.Comparison.Comparer.areEquivalent", () => {
     });
 
     it("calls isPropertyExcluded, with property name and value, when comparison options defines it", () => {
-        const options: Objs.Comparison.IEquivalenceComparisonOptions = {
+        const options: IEquivalenceComparisonOptions = {
             isPropertyExcluded: (key, value) => {
                 switch (key) {
                     case "str":
@@ -161,7 +163,7 @@ describe("Objs.Comparison.Comparer.areEquivalent", () => {
         original.prop.arr.push(original as never);
         original.prop.arr.push(original.prop as never);
 
-        const clone = Objs.Cloning.Cloner.deepClone(original);
+        const clone = Cloner.deepClone(original);
 
         // act
         const actual = sut.areEquivalent(original, clone);
@@ -182,7 +184,7 @@ describe("Objs.Comparison.Comparer.areEquivalent", () => {
         original.prop.arr.push(original as never);
         original.prop.arr.push(original.prop as never);
 
-        const clone = Objs.Cloning.Cloner.deepClone(original);
+        const clone = Cloner.deepClone(original);
         clone.prop.root = clone.prop as any;
 
         // act
@@ -199,7 +201,7 @@ describe("Objs.Comparison.Comparer.areEquivalent", () => {
         original[0].prop.arr.push(original as never);
         original[0].prop.arr.push(original[0].prop as never);
 
-        const clone = Objs.Cloning.Cloner.deepClone(original);
+        const clone = Cloner.deepClone(original);
 
         // act
         const actual = sut.areEquivalent(original, clone);
@@ -215,7 +217,7 @@ describe("Objs.Comparison.Comparer.areEquivalent", () => {
         original[0].prop.arr.push(original as never);
         original[0].prop.arr.push(original[0].prop as never);
 
-        const clone = Objs.Cloning.Cloner.deepClone(original);
+        const clone = Cloner.deepClone(original);
         clone[0].prop.arr[0] = clone[0].prop as never;
 
         // act

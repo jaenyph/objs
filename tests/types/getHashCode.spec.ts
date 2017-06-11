@@ -1,7 +1,8 @@
 /// <reference path="../../typings/globals/jasmine/index.d.ts" />
-/// <reference path="../../src/types.ts" />
+import { Types } from "../../src/types";
+
 describe("Objs.Types.getHashCode", () => {
-    const sut = Objs.Types;
+    const sut = Types;
 
     it("returns same values for booleans that are clone", () => {
         const firstActual = sut.getHashCode(true);

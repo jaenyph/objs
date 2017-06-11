@@ -1,12 +1,13 @@
 /// <reference path="../../typings/globals/jasmine/index.d.ts" />
-/// <reference path="../../src/cloner.ts" />
-describe("Objs.Cloning.Cloner.shallowCloneTo", () => {
+import { Cloner } from "../../src/cloning/cloner";
+
+describe("Cloner.shallowCloneTo", () => {
     const sourceNotDefinedErrorMessage = "source is not defined";
     const targetNotDefinedErrorMessage = "target is not defined";
     const primitiveErrorMessage = "could not act on a primitive value";
     const typesVariationErrorMessage = "source and target types varies";
     const sameInstancesErrorMessage = "could not act on same instances";
-    const sut = Objs.Cloning.Cloner;
+    const sut = Cloner;
 
     it("throws if source and target types varies", () => {
         expect(sut.shallowCloneTo.bind(sut, {}, [])).toThrowError(typesVariationErrorMessage);

@@ -1,7 +1,8 @@
 /// <reference path="../../typings/globals/jasmine/index.d.ts" />
-/// <reference path="../../src/comparer.ts" />
-describe("Objs.Comparison.Comparer.compare", () => {
-    const sut = Objs.Comparison.Comparer;
+import { Comparer } from "../../src/comparison/comparer";
+
+describe("Comparer.compare", () => {
+    const sut = Comparer;
 
     it("consider both empty objects as equivalents", () => {
 
@@ -16,7 +17,7 @@ describe("Objs.Comparison.Comparer.compare", () => {
 
         const a = {};
         const b = {
-            "prop" : 1
+            "prop": 1
         }
 
         const actual = sut.compare(a, b);
@@ -27,7 +28,7 @@ describe("Objs.Comparison.Comparer.compare", () => {
     it("handles properties missing on right", () => {
 
         const a = {
-            "prop" : 1
+            "prop": 1
         }
         const b = {};
 
@@ -36,5 +37,5 @@ describe("Objs.Comparison.Comparer.compare", () => {
         expect(actual.missingOnRight.length).toBe(1);
     });
 
-    
+
 });

@@ -1,7 +1,8 @@
 /// <reference path="../../typings/globals/jasmine/index.d.ts" />
-/// <reference path="../../src/types.ts" />
+import { Types } from "../../src/types";
+
 describe("Objs.Types.isNative", () => {
-    const sut = Objs.Types;
+    const sut = Types;
 
      it("returns true if primitive", () => {
         const actual = sut.isNative(123);
