@@ -12,7 +12,8 @@
     "test": "npm run build && karma start",
     "test-once": "npm run build && karma start --single-run",
     "karma": "karma",
-    "uglifyjs": "uglifyjs"
+    "uglifyjs": "uglifyjs",
+    "tsc": "./node_modules/typescript/bin/tsc"
   },
   "repository": {
     "type": "git",
@@ -40,7 +41,7 @@
     "karma-requirejs": "^1.1.0",
     "requirejs": "~2.3.2",
     "tslint": "~3.15.0",
-    "typescript": "~2.1.0",
+    "typescript": "~2.3.2",
     "uglify-js": "~2.7.5"
   }
 }
