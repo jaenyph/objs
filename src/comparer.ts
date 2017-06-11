@@ -80,7 +80,10 @@ namespace Objs.Comparison {
             valueAComparisons.set(valueB, result);
         }
 
-        /** Check for object equivalence with references cycles handling */
+        /**
+            Check for object equivalence with references cycles handling.
+            Fast fail if any difference found.
+        */
         private static checkForEquivalence<T>(
             valueA: T,
             valueB: T,
@@ -164,7 +167,7 @@ namespace Objs.Comparison {
                         if (keysALength !== keysBLength) {
                             return false;
                         }
-
+                        
                     }
 
                     this.storeProcessedEquivalenceComparison(valueA, valueB, true, processedReferences);
@@ -289,29 +292,23 @@ namespace Objs.Comparison {
 
                     if (keysALength !== keysBLength) {
 
-                        if (!comparisonOptions.ignoreMissingPropertyWhenUndefined) {
-                            return result;
-                        }
+                        if (comparisonOptions.ignoreMissingPropertyWhenUndefined) {   
+                            //also discard undefined properties when the same property is not defined on the other side
+                            keysA = keysA.filter((key) => {
+                                if (valueA[key] === undefined) {
+                                    return valueB.hasOwnProperty(key);
+                                }
+                                return true;
+                            });
+                            keysB = keysB.filter((key) => {
+                                if (valueB[key] === undefined) {
+                                    return valueA.hasOwnProperty(key);
+                                }
+                                return true;
+                            });
 
-                        //also discard undefined properties when the same property is not defined on the other side
-                        keysA = keysA.filter((key) => {
-                            if (valueA[key] === undefined) {
-                                return valueB.hasOwnProperty(key);
-                            }
-                            return true;
-                        });
-                        keysB = keysB.filter((key) => {
-                            if (valueB[key] === undefined) {
-                                return valueA.hasOwnProperty(key);
-                            }
-                            return true;
-                        });
-
-                        keysALength = keysA.length;
-                        keysBLength = keysB.length;
-
-                        if (keysALength !== keysBLength) {
-                            return result;
+                            keysALength = keysA.length;
+                            keysBLength = keysB.length;
                         }
 
                     }
@@ -321,7 +318,7 @@ namespace Objs.Comparison {
                         for (let index = 0; index < keysALength; ++index) {
                             const keyA = keysA[index];
                             if (keysB.indexOf(keyA) < 0) {
-                                result.missingOnLeft.push( {
+                                result.missingOnRight.push( {
                                     left: valueA,
                                     right: valueB,
                                     missingOnLeft : [],
