@@ -237,7 +237,7 @@ namespace Objs.Comparison {
                 differences: []
             };
 
-            const typeOfValueA = typeof valueA;
+            const typeOfValueA:string = typeof valueA;
             // If reference A has already been processed when compared exactly with reference B return the stored result
             if ((typeOfValueA === "object" || typeOfValueA === "array") && processedReferences.has(valueA)) {
                 const comparisonsForA = processedReferences.get(valueA) as Map<Object, IComparisonDifferences>;
