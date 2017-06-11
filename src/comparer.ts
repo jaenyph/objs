@@ -314,32 +314,50 @@ namespace Objs.Comparison {
                     }
 
                     this.storeProcessedReference(valueA, valueB, result, processedReferences);
-                    if(keysALength) {
-                        for (let index = 0; index < keysALength; ++index) {
-                            const keyA = keysA[index];
-                            if (keysB.indexOf(keyA) < 0) {
-                                result.missingOnRight.push( {
-                                    left: valueA,
-                                    right: valueB,
-                                    missingOnLeft : [],
-                                    missingOnRight : [],
-                                    areEquivalents : false,
-                                    differences : [],
-                                    equivalences : []
-                                } as IComparisonDifferences);
-                                //this.storeProcessedReference(valueA, valueB, false, processedReferences);
-                                return result;
-                            }
-                            if (!this.checkForDifferences(valueA[keyA], valueB[keyA], processedReferences, comparisonOptions)) {
-                                //this.storeProcessedReference(valueA, valueB, false, processedReferences);
-                                return result;
-                            }
+                    if(!keysBLength && !keysBLength) {
+                        //Both objects are empty:
+                        result.areEquivalents = true;
+                    }
+
+                    for (let index = 0; index < keysALength; ++index) {
+                        const keyA = keysA[index];
+                        if (keysB.indexOf(keyA) < 0) {
+                            result.missingOnRight.push( {
+                                left: valueA,
+                                right: valueB,
+                                missingOnLeft : [],
+                                missingOnRight : [],
+                                areEquivalents : false,
+                                differences : [],
+                                equivalences : []
+                            } as IComparisonDifferences);
+                            //this.storeProcessedReference(valueA, valueB, false, processedReferences);
+                            return result;
+                        }
+                        if (!this.checkForDifferences(valueA[keyA], valueB[keyA], processedReferences, comparisonOptions)) {
+                            //this.storeProcessedReference(valueA, valueB, false, processedReferences);
+                            return result;
                         }
                     }
-                    else {
-                        if(!keysBLength) {
-                            //Both objects are empty:
-                            result.areEquivalents = true;
+
+                    for (let index = 0; index < keysBLength; ++index) {
+                        const keyB = keysB[index];
+                        if (keysA.indexOf(keyB) < 0) {
+                            result.missingOnLeft.push( {
+                                left: valueA,
+                                right: valueB,
+                                missingOnLeft : [],
+                                missingOnRight : [],
+                                areEquivalents : false,
+                                differences : [],
+                                equivalences : []
+                            } as IComparisonDifferences);
+                            //this.storeProcessedReference(valueA, valueB, false, processedReferences);
+                            return result;
+                        }
+                        if (!this.checkForDifferences(valueB[keyB], valueB[keyB], processedReferences, comparisonOptions)) {
+                            //this.storeProcessedReference(valueA, valueB, false, processedReferences);
+                            return result;
                         }
                     }
 
